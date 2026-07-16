@@ -53,11 +53,21 @@ app/src/main/java/com/example/pebblestone/
 
 ## Retention features
 
+- **Daily challenge** — a date-seeded board (same for everyone that day) with a
+  separate daily win streak. Every starting vacancy is solvable to one stone, so
+  each day is fair. Toggle **Free / Daily** at the top.
 - **Stats & streaks** — games played/won, win rate, best result, current/best
-  win streak, persisted across launches and shown in a stats dialog.
+  win streak, plus daily streak — persisted across launches, shown in a dialog.
 - **Hint** — highlights one legal move with a pulsing ring (the natural hook for
   a future rewarded ad).
-- **Haptics** — a light tick on every committed move.
+- **Animated jumps** — the moving stone slides into place while the jumped stone
+  fades and shrinks away.
+- **Sound & haptics** — a wooden "tock" + capture pop per move, win/lose cues,
+  and a light haptic tick. Mute toggle in the header (persisted). Effects are
+  small generated WAVs in `res/raw`, played via `SoundPool`.
+
+Free-play boards randomise the starting vacancy and gem colours each game for
+variety; the daily board is fixed per calendar day.
 
 All game rules live in `GameState` (pure, immutable, easily testable); the UI
 layer only renders it and forwards taps.

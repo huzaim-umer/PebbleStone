@@ -85,13 +85,18 @@ class GameState private constructor(
             }
         }
 
-        /** Standard opening: every hole filled except the centre. */
-        fun newGame(): GameState {
-            val marbles = PLAYABLE.filter { it != CENTER }.toSet()
-            // Deterministic but visually varied gemstone assignment (spatial hash).
+        /**
+         * A new board with [emptyHole] vacant (centre by default). Every playable
+         * single-vacancy start is solvable down to one stone, so any hole is fair.
+         * [seed] varies the gemstone colouring between games without affecting play.
+         */
+        fun newGame(emptyHole: Pos = CENTER, seed: Long = 0L): GameState {
+            val marbles = PLAYABLE.filter { it != emptyHole }.toSet()
+            // Deterministic but visually varied gemstone assignment (spatial hash + seed).
             val palette = GemPalette.count
+            val s = seed.toInt() * -0x61c88647 // golden-ratio mix
             val gems = marbles.associateWith { p ->
-                val h = (p.r * 73856093) xor (p.c * 19349663) xor (p.r * p.c * 83492791)
+                val h = (p.r * 73856093) xor (p.c * 19349663) xor (p.r * p.c * 83492791) xor s
                 (h and 0x7fffffff) % palette
             }
             return GameState(marbles, gems)

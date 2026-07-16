@@ -10,3 +10,6 @@ build/
 .externalNativeBuild
 .cxx
 local.properties
+
+# Kotlin compiler session artifacts
+.kotlin/

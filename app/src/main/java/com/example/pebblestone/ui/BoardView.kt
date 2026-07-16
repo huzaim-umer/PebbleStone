@@ -52,6 +52,8 @@ fun BoardView(
     destinations: Set<Pos>,
     hint: Move?,
     pulse: Float,
+    anim: MoveAnim?,
+    animProgress: Float,
     onTapCell: (Pos) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -67,6 +69,7 @@ fun BoardView(
             }
     ) {
         val geo = BoardGeometry(size.width)
+        val animating = anim != null && animProgress < 1f
         drawBoard(geo)
         // Holes first, then marbles on top.
         for (p in GameState.PLAYABLE) {
@@ -74,12 +77,30 @@ fun BoardView(
         }
         for (p in GameState.PLAYABLE) {
             if (state.isMarble(p)) {
+                // While animating, the destination stone is drawn as the moving one below.
+                if (animating && p == anim!!.to) continue
                 val gem = GemPalette[state.gemAt(p) ?: 0]
                 drawMarble(geo.centerOf(p), geo.marbleR, gem, selected = p == selected)
             }
         }
+        if (animating) {
+            // Jumped stone fades and shrinks away.
+            val jumpedCenter = geo.centerOf(anim!!.jumped)
+            drawMarble(
+                jumpedCenter, geo.marbleR, GemPalette[anim.jumpedGem],
+                selected = false, alpha = 1f - animProgress, scale = 1f - 0.4f * animProgress,
+            )
+            // Moving stone slides from source to destination.
+            val from = geo.centerOf(anim.from)
+            val to = geo.centerOf(anim.to)
+            val movingCenter = Offset(
+                from.x + (to.x - from.x) * animProgress,
+                from.y + (to.y - from.y) * animProgress,
+            )
+            drawMarble(movingCenter, geo.marbleR, GemPalette[anim.movingGem], selected = false)
+        }
         // Hint overlay: a pulsing ring on the marble to move and its destination.
-        if (hint != null) {
+        if (hint != null && !animating) {
             drawPulseRing(geo.centerOf(hint.from), geo.marbleR, pulse)
             drawPulseRing(geo.centerOf(hint.to), geo.marbleR, pulse)
         }
@@ -173,12 +194,19 @@ private fun DrawScope.drawHole(center: Offset, r: Float, highlighted: Boolean) {
     }
 }
 
-private fun DrawScope.drawMarble(center: Offset, r: Float, gem: Gem, selected: Boolean) {
-    val radius = if (selected) r * 1.06f else r
+private fun DrawScope.drawMarble(
+    center: Offset,
+    r: Float,
+    gem: Gem,
+    selected: Boolean,
+    alpha: Float = 1f,
+    scale: Float = 1f,
+) {
+    val radius = (if (selected) r * 1.06f else r) * scale
 
     if (selected) {
-        drawCircle(color = Color(0x88E0A458), radius = radius * 1.28f, center = center)
-        drawCircle(color = Color(0x44E0A458), radius = radius * 1.5f, center = center)
+        drawCircle(color = Color(0x88E0A458), radius = radius * 1.28f, center = center, alpha = alpha)
+        drawCircle(color = Color(0x44E0A458), radius = radius * 1.5f, center = center, alpha = alpha)
     }
 
     // Contact shadow on the board beneath the marble.
@@ -186,6 +214,7 @@ private fun DrawScope.drawMarble(center: Offset, r: Float, gem: Gem, selected: B
         color = Color(0x55000000),
         radius = radius * 0.92f,
         center = center + Offset(radius * 0.14f, radius * 0.22f),
+        alpha = alpha,
     )
 
     // The sphere: bright highlight offset toward top-left, dark rim.
@@ -201,6 +230,7 @@ private fun DrawScope.drawMarble(center: Offset, r: Float, gem: Gem, selected: B
         ),
         radius = radius,
         center = center,
+        alpha = alpha,
     )
     // Defining rim.
     drawCircle(
@@ -208,17 +238,20 @@ private fun DrawScope.drawMarble(center: Offset, r: Float, gem: Gem, selected: B
         radius = radius,
         center = center,
         style = Stroke(width = radius * 0.06f),
+        alpha = alpha,
     )
     // Specular highlight dot.
     drawCircle(
         color = Color.White.copy(alpha = 0.85f * gem.sheen.coerceAtMost(1.2f)),
         radius = radius * 0.20f,
         center = center - Offset(radius * 0.34f, radius * 0.40f),
+        alpha = alpha,
     )
     // Faint lower bounce light for depth.
     drawCircle(
         color = gem.base.lighten(0.25f).copy(alpha = 0.35f),
         radius = radius * 0.30f,
         center = center + Offset(radius * 0.28f, radius * 0.34f),
+        alpha = alpha,
     )
 }
