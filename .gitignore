@@ -13,3 +13,8 @@ local.properties
 
 # Kotlin compiler session artifacts
 .kotlin/
+
+# Signing secrets — NEVER commit these
+keystore.properties
+*.jks
+*.keystore

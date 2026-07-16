@@ -1,4 +1,10 @@
-# Pebble Stone
+# GemLeap
+
+> Working title: **GemLeap** (formerly "Pebble Stone"). The package id is still
+> `com.example.pebblestone` — see `docs/release-checklist.md` before publishing.
+
+Release & publishing docs: [`docs/store-listing.md`](docs/store-listing.md) ·
+[`docs/release-checklist.md`](docs/release-checklist.md)
 
 A native Android take on **peg (marble) solitaire** — the English 33-hole cross
 board — built with Kotlin and Jetpack Compose. The board and gemstone marbles are
