@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Pebble Stone</string>
-    <style name="Theme.PebbleStone" parent="android:Theme.Material.NoActionBar">
-        <item name="android:statusBarColor">#2A1B10</item>
-        <item name="android:navigationBarColor">#2A1B10</item>
-        <item name="android:windowLightStatusBar">false</item>
-    </style>
-</resources>

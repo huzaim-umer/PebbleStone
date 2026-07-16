@@ -1,9 +1,11 @@
 *.iml
-.gradle
+.gradle/
 /local.properties
 /.idea
 .DS_Store
-/build
+
+# Gradle/Android build output at any level (root or module)
+build/
 /captures
 .externalNativeBuild
 .cxx
