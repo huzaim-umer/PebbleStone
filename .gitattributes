@@ -1,0 +1,14 @@
+# Normalize line endings on checkin
+* text=auto
+
+# Keep the Gradle wrapper shell script LF so it runs on macOS/Linux
+gradlew text eol=lf
+
+# Windows batch scripts stay CRLF
+*.bat text eol=crlf
+
+# Treat these as binary (never touch line endings)
+*.jar binary
+*.png binary
+*.jpg binary
+*.webp binary
