@@ -39,14 +39,25 @@ app/src/main/java/com/example/pebblestone/
 ├─ MainActivity.kt              # Compose entry point
 ├─ model/
 │  ├─ GameState.kt              # immutable board + peg-solitaire rules
-│  └─ GemPalette.kt             # the gemstone colour set
+│  ├─ GemPalette.kt             # the gemstone colour set
+│  └─ GameStats.kt              # lifetime play statistics
+├─ data/
+│  └─ StatsRepository.kt        # persists stats via SharedPreferences
 └─ ui/
-   ├─ GameScreen.kt             # screen: header, status, controls, banner
+   ├─ GameScreen.kt             # screen: header, status, streak, controls, stats dialog
    ├─ BoardView.kt              # Canvas board/marble rendering + tap hit-testing
-   ├─ PebbleController.kt       # UI state: selection, moves, undo history
+   ├─ PebbleController.kt       # UI state: selection, moves, undo, hint, stats
    ├─ ColorUtils.kt             # lighten/darken helpers
    └─ theme/Theme.kt            # colours + Material3 theme
 ```
+
+## Retention features
+
+- **Stats & streaks** — games played/won, win rate, best result, current/best
+  win streak, persisted across launches and shown in a stats dialog.
+- **Hint** — highlights one legal move with a pulsing ring (the natural hook for
+  a future rewarded ad).
+- **Haptics** — a light tick on every committed move.
 
 All game rules live in `GameState` (pure, immutable, easily testable); the UI
 layer only renders it and forwards taps.

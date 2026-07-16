@@ -15,6 +15,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import com.example.pebblestone.model.GameState
 import com.example.pebblestone.model.Gem
 import com.example.pebblestone.model.GemPalette
+import com.example.pebblestone.model.Move
 import com.example.pebblestone.model.Pos
 
 /** Precomputed pixel geometry derived from the (square) board side length. */
@@ -49,6 +50,8 @@ fun BoardView(
     state: GameState,
     selected: Pos?,
     destinations: Set<Pos>,
+    hint: Move?,
+    pulse: Float,
     onTapCell: (Pos) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -75,7 +78,23 @@ fun BoardView(
                 drawMarble(geo.centerOf(p), geo.marbleR, gem, selected = p == selected)
             }
         }
+        // Hint overlay: a pulsing ring on the marble to move and its destination.
+        if (hint != null) {
+            drawPulseRing(geo.centerOf(hint.from), geo.marbleR, pulse)
+            drawPulseRing(geo.centerOf(hint.to), geo.marbleR, pulse)
+        }
     }
+}
+
+private fun DrawScope.drawPulseRing(center: Offset, r: Float, pulse: Float) {
+    val scale = 1.05f + 0.25f * pulse
+    val alpha = 0.85f - 0.55f * pulse
+    drawCircle(
+        color = Color(0xFF6BD37A).copy(alpha = alpha),
+        radius = r * scale,
+        center = center,
+        style = Stroke(width = r * 0.14f),
+    )
 }
 
 private fun DrawScope.drawBoard(geo: BoardGeometry) {
