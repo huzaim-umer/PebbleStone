@@ -69,6 +69,33 @@ app/src/main/java/com/example/pebblestone/
 Free-play boards randomise the starting vacancy and gem colours each game for
 variety; the daily board is fixed per calendar day.
 
+## Monetization (Phase 2)
+
+Package `monetization/` wires up ads and in-app purchase:
+
+- **Interstitial ad** (AdMob) shown at most once every `GAMES_PER_INTERSTITIAL`
+  games, gated behind GDPR consent (Google UMP) and skipped once ads are removed.
+- **Remove Ads** — a one-time Play Billing purchase (`remove_ads`) that disables
+  interstitials. Billing is the source of truth; a cached flag gives instant UI.
+  A **Restore** action re-checks ownership.
+
+All ad ids in `monetization/AdIds.kt` are **Google's official TEST ids** and the
+AdMob app id in `AndroidManifest.xml` is the sample id — safe for development.
+
+### Before publishing / testing purchases
+
+1. **AdMob:** create your app + an interstitial unit. Put the real app id in
+   `AndroidManifest.xml` (`APPLICATION_ID` meta-data) and the real unit id in
+   `AdIds.kt`, then set `AdIds.USE_TEST = false`.
+2. **Play Console → Monetize → In-app products:** create a product with id
+   **`remove_ads`** (matches `AdIds.PRODUCT_REMOVE_ADS`), set a price, activate it.
+3. **Upload a signed build to a testing track** (Internal testing). Play Billing
+   only works for apps distributed through Play — you cannot buy from a local
+   debug build.
+4. **License testers:** Play Console → Setup → License testing → add your Google
+   account so purchases are free test transactions.
+5. Install via the testing-track link with that account, then buy Remove Ads.
+
 All game rules live in `GameState` (pure, immutable, easily testable); the UI
 layer only renders it and forwards taps.
 

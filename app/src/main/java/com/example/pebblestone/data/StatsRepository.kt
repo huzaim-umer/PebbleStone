@@ -81,6 +81,13 @@ class StatsRepository(context: Context) {
         prefs.edit().putBoolean(KEY_SOUND_ON, on).apply()
     }
 
+    /** Cached "Remove Ads" entitlement for instant UI; billing remains authoritative. */
+    fun loadAdsRemoved(): Boolean = prefs.getBoolean(KEY_ADS_REMOVED, false)
+
+    fun saveAdsRemoved(removed: Boolean) {
+        prefs.edit().putBoolean(KEY_ADS_REMOVED, removed).apply()
+    }
+
     private companion object {
         const val KEY_PLAYED = "games_played"
         const val KEY_WON = "games_won"
@@ -91,5 +98,6 @@ class StatsRepository(context: Context) {
         const val KEY_DAILY_STREAK = "daily_streak"
         const val KEY_DAILY_BEST_STREAK = "daily_best_streak"
         const val KEY_SOUND_ON = "sound_on"
+        const val KEY_ADS_REMOVED = "ads_removed"
     }
 }

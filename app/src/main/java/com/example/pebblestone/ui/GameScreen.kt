@@ -63,7 +63,14 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun GameScreen(modifier: Modifier = Modifier) {
+fun GameScreen(
+    modifier: Modifier = Modifier,
+    adsRemoved: Boolean = false,
+    removeAdsPrice: String? = null,
+    onRemoveAds: () -> Unit = {},
+    onRestorePurchases: () -> Unit = {},
+    onNewGameStarted: () -> Unit = {},
+) {
     val context = LocalContext.current
     val repo = remember { StatsRepository(context) }
     val controller = remember { PebbleController(repo) }
@@ -225,7 +232,10 @@ fun GameScreen(modifier: Modifier = Modifier) {
                 Text("Undo")
             }
             Button(
-                onClick = controller::restart,
+                onClick = {
+                    controller.restart()
+                    onNewGameStarted()
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Amber, contentColor = WoodDark),
                 modifier = Modifier.weight(1f),
             ) {
@@ -237,12 +247,24 @@ fun GameScreen(modifier: Modifier = Modifier) {
                 )
             }
         }
+
+        if (!adsRemoved) {
+            TextButton(onClick = onRemoveAds) {
+                Text(
+                    text = "Remove Ads" + (removeAdsPrice?.let { " · $it" } ?: ""),
+                    color = Color(0xFFCBB79E),
+                    fontSize = 13.sp,
+                )
+            }
+        }
     }
 
     if (showStats) {
         StatsDialog(
             stats = controller.lifetimeStats,
             daily = controller.dailyStats,
+            adsRemoved = adsRemoved,
+            onRestorePurchases = onRestorePurchases,
             onDismiss = { showStats = false },
         )
     }
@@ -312,10 +334,19 @@ private fun GameOverBanner(win: Boolean, remaining: Int, daily: Boolean) {
 }
 
 @Composable
-private fun StatsDialog(stats: GameStats, daily: DailyState, onDismiss: () -> Unit) {
+private fun StatsDialog(
+    stats: GameStats,
+    daily: DailyState,
+    adsRemoved: Boolean,
+    onRestorePurchases: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        dismissButton = {
+            if (!adsRemoved) TextButton(onClick = onRestorePurchases) { Text("Restore") }
+        },
         title = { Text("Your stats") },
         text = {
             Column {
@@ -327,6 +358,7 @@ private fun StatsDialog(stats: GameStats, daily: DailyState, onDismiss: () -> Un
                 StatRow("Best streak", stats.bestStreak.toString())
                 StatRow("Daily streak", daily.streak.toString())
                 StatRow("Best daily streak", daily.bestStreak.toString())
+                StatRow("Ads", if (adsRemoved) "Removed ✓" else "On")
             }
         },
     )

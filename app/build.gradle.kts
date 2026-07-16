@@ -52,5 +52,10 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
 
+    // Monetization
+    implementation("com.google.android.gms:play-services-ads:23.6.0")   // AdMob (interstitial)
+    implementation("com.google.android.ump:user-messaging-platform:3.1.0") // GDPR consent
+    implementation("com.android.billingclient:billing-ktx:7.1.1")       // Play Billing (Remove Ads)
+
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
