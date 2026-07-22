@@ -25,8 +25,8 @@ import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.VolumeOff
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -138,7 +138,7 @@ fun GameScreen(
                 modifier = Modifier.align(Alignment.CenterEnd),
             ) {
                 Icon(
-                    if (soundOn) Icons.Filled.VolumeUp else Icons.Filled.VolumeOff,
+                    if (soundOn) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
                     contentDescription = if (soundOn) "Mute" else "Unmute",
                     tint = Amber,
                 )
