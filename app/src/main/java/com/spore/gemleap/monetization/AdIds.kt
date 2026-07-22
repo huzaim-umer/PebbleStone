@@ -11,11 +11,15 @@ package com.spore.gemleap.monetization
  * TODO(release): replace INTERSTITIAL with your real unit and set USE_TEST = false.
  */
 object AdIds {
-    /** Flip to false and fill the real ids for a production build. */
+    /**
+     * Keep TRUE during development so test ads are shown (clicking your own live
+     * ads can get your AdMob account suspended). Flip to FALSE only for the
+     * production release that goes to the Play "production" track.
+     */
     const val USE_TEST = true
 
     private const val TEST_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712"
-    private const val REAL_INTERSTITIAL = "" // TODO(release): your AdMob interstitial unit id
+    private const val REAL_INTERSTITIAL = "ca-app-pub-4559645833837224/4920816424"
 
     val interstitial: String
         get() = if (USE_TEST) TEST_INTERSTITIAL else REAL_INTERSTITIAL

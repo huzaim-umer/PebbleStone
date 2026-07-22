@@ -13,13 +13,13 @@
         android:theme="@style/Theme.PebbleStone">
 
         <!--
-          AdMob application ID. This is Google's official SAMPLE/TEST app id — safe
-          for development. Replace with your real AdMob app id before publishing
-          (AdMob console → App settings). See monetization/AdIds.kt for ad units.
+          Real AdMob application ID for GemLeap. Ad UNIT ids stay on Google's test
+          units during development (see monetization/AdIds.kt, USE_TEST) — a real
+          app id with test units is the recommended, self-click-safe combo.
         -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-4559645833837224~2513576719" />
 
         <activity
             android:name=".MainActivity"
