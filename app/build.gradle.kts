@@ -30,7 +30,8 @@ android {
         // or CI). Absent it, release builds are simply unsigned.
         if (keystorePropsFile.exists()) {
             create("release") {
-                storeFile = file(keystoreProps.getProperty("storeFile"))
+                // storeFile in keystore.properties is relative to the repo root.
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
                 storePassword = keystoreProps.getProperty("storePassword")
                 keyAlias = keystoreProps.getProperty("keyAlias")
                 keyPassword = keystoreProps.getProperty("keyPassword")
