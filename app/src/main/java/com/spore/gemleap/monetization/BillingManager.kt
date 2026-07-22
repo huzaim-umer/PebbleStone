@@ -1,4 +1,4 @@
-package com.example.pebblestone.monetization
+package com.spore.gemleap.monetization
 
 import android.app.Activity
 import android.content.Context
@@ -17,7 +17,7 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.example.pebblestone.data.StatsRepository
+import com.spore.gemleap.data.StatsRepository
 
 /**
  * Wraps Play Billing for the single "Remove Ads" non-consumable purchase.

@@ -1,4 +1,4 @@
-package com.example.pebblestone
+package com.spore.gemleap
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.pebblestone.data.StatsRepository
-import com.example.pebblestone.monetization.BillingManager
-import com.example.pebblestone.monetization.ConsentManager
-import com.example.pebblestone.monetization.InterstitialAdManager
-import com.example.pebblestone.ui.GameScreen
-import com.example.pebblestone.ui.theme.PebbleStoneTheme
-import com.example.pebblestone.ui.theme.WoodDark
+import com.spore.gemleap.data.StatsRepository
+import com.spore.gemleap.monetization.BillingManager
+import com.spore.gemleap.monetization.ConsentManager
+import com.spore.gemleap.monetization.InterstitialAdManager
+import com.spore.gemleap.ui.GameScreen
+import com.spore.gemleap.ui.theme.PebbleStoneTheme
+import com.spore.gemleap.ui.theme.WoodDark
 import com.google.android.gms.ads.MobileAds
 
 class MainActivity : ComponentActivity() {

@@ -1,8 +1,8 @@
-package com.example.pebblestone.data
+package com.spore.gemleap.data
 
 import android.content.Context
-import com.example.pebblestone.model.GameStats
-import com.example.pebblestone.ui.DailyState
+import com.spore.gemleap.model.GameStats
+import com.spore.gemleap.ui.DailyState
 import kotlin.math.min
 
 /**

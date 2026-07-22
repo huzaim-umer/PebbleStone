@@ -14,11 +14,11 @@ val keystoreProps = Properties().apply {
 }
 
 android {
-    namespace = "com.example.pebblestone"
+    namespace = "com.spore.gemleap"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.pebblestone"
+        applicationId = "com.spore.gemleap"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

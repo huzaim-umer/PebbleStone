@@ -2,11 +2,9 @@
 
 Ordered from "do now" to "day of launch." Items marked ⛔ are hard blockers.
 
-## 0. Decide the package id (⛔ do before first publish)
-The `applicationId` is currently `com.example.pebblestone`. **`com.example.*` is a
-placeholder Google Play will reject**, and the id can **never change after your
-first upload**. Pick a real one, e.g. `com.<yourname>.gemleap`, and set it in
-`app/build.gradle.kts` (`applicationId`) and `namespace`. Ask and I'll do this.
+## 0. Package id — DONE ✅
+The `applicationId` and `namespace` are set to **`com.spore.gemleap`** (the Kotlin
+source package was renamed to match). This is permanent after your first upload.
 
 ## 1. Generate your upload keystore (one time)
 Run once, in the repo root (needs the JDK's keytool — it's on PATH with Android

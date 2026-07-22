@@ -1,4 +1,4 @@
-package com.example.pebblestone.ui
+package com.spore.gemleap.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -12,11 +12,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import com.example.pebblestone.model.GameState
-import com.example.pebblestone.model.Gem
-import com.example.pebblestone.model.GemPalette
-import com.example.pebblestone.model.Move
-import com.example.pebblestone.model.Pos
+import com.spore.gemleap.model.GameState
+import com.spore.gemleap.model.Gem
+import com.spore.gemleap.model.GemPalette
+import com.spore.gemleap.model.Move
+import com.spore.gemleap.model.Pos
 
 /** Precomputed pixel geometry derived from the (square) board side length. */
 private class BoardGeometry(val side: Float) {

@@ -1,12 +1,12 @@
-package com.example.pebblestone.ui
+package com.spore.gemleap.ui
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.example.pebblestone.data.StatsRepository
-import com.example.pebblestone.model.GameState
-import com.example.pebblestone.model.Move
-import com.example.pebblestone.model.Pos
+import com.spore.gemleap.data.StatsRepository
+import com.spore.gemleap.model.GameState
+import com.spore.gemleap.model.Move
+import com.spore.gemleap.model.Pos
 import java.time.LocalDate
 import kotlin.random.Random
 

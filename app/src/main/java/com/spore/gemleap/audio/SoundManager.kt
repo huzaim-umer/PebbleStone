@@ -1,9 +1,9 @@
-package com.example.pebblestone.audio
+package com.spore.gemleap.audio
 
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
-import com.example.pebblestone.R
+import com.spore.gemleap.R
 
 /**
  * Thin wrapper over [SoundPool] for the game's short effects. Sounds are tiny

@@ -1,4 +1,4 @@
-package com.example.pebblestone.model
+package com.spore.gemleap.model
 
 /** A board coordinate on the 7x7 grid. */
 data class Pos(val r: Int, val c: Int)

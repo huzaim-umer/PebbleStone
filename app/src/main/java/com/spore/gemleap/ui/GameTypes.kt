@@ -1,6 +1,6 @@
-package com.example.pebblestone.ui
+package com.spore.gemleap.ui
 
-import com.example.pebblestone.model.Pos
+import com.spore.gemleap.model.Pos
 
 /** Whether the player is on the endless free board or the date-seeded daily one. */
 enum class GameMode { FREE, DAILY }

@@ -1,4 +1,4 @@
-package com.example.pebblestone.ui
+package com.spore.gemleap.ui
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp

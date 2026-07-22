@@ -1,4 +1,4 @@
-package com.example.pebblestone.model
+package com.spore.gemleap.model
 
 /** Persisted lifetime play statistics. */
 data class GameStats(

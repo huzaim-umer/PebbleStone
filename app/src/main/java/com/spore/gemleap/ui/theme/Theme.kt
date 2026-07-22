@@ -1,4 +1,4 @@
-package com.example.pebblestone.ui.theme
+package com.spore.gemleap.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

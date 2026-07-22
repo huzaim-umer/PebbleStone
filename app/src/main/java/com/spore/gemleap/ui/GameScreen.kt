@@ -1,4 +1,4 @@
-package com.example.pebblestone.ui
+package com.spore.gemleap.ui
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -54,11 +54,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pebblestone.audio.SoundManager
-import com.example.pebblestone.data.StatsRepository
-import com.example.pebblestone.model.GameStats
-import com.example.pebblestone.ui.theme.Amber
-import com.example.pebblestone.ui.theme.WoodDark
+import com.spore.gemleap.audio.SoundManager
+import com.spore.gemleap.data.StatsRepository
+import com.spore.gemleap.model.GameStats
+import com.spore.gemleap.ui.theme.Amber
+import com.spore.gemleap.ui.theme.WoodDark
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -129,7 +129,7 @@ fun GameScreen(
     ) {
         // Title with a sound toggle pinned to the right.
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text("Pebble Stone", color = Amber, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text("GemLeap", color = Amber, fontSize = 28.sp, fontWeight = FontWeight.Bold)
             IconButton(
                 onClick = {
                     soundOn = !soundOn

@@ -1,4 +1,4 @@
-package com.example.pebblestone.monetization
+package com.spore.gemleap.monetization
 
 import android.app.Activity
 import android.util.Log

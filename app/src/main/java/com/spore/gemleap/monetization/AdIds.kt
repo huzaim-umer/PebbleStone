@@ -1,4 +1,4 @@
-package com.example.pebblestone.monetization
+package com.spore.gemleap.monetization
 
 /**
  * Central place for AdMob unit ids and the billing product id.

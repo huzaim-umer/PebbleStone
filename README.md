@@ -1,7 +1,6 @@
 # GemLeap
 
-> Working title: **GemLeap** (formerly "Pebble Stone"). The package id is still
-> `com.example.pebblestone` — see `docs/release-checklist.md` before publishing.
+> **GemLeap** (formerly "Pebble Stone"). Package id: `com.spore.gemleap`.
 
 Release & publishing docs: [`docs/store-listing.md`](docs/store-listing.md) ·
 [`docs/release-checklist.md`](docs/release-checklist.md)
@@ -41,7 +40,7 @@ This is a standard Android Studio project.
 ## Project layout
 
 ```
-app/src/main/java/com/example/pebblestone/
+app/src/main/java/com/spore/gemleap/
 ├─ MainActivity.kt              # Compose entry point
 ├─ model/
 │  ├─ GameState.kt              # immutable board + peg-solitaire rules
