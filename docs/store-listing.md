@@ -21,32 +21,25 @@ Jump the gemstones, clear the board. A calm, classic marble solitaire puzzle.
 (76 chars.)
 
 ## Full description (max 4000 chars)
+NOTE: Play's quality check rejects decorative Unicode (bullets, em-dashes, curly
+quotes) as "text that can't be read." Keep this plain ASCII — hyphens, not bullets.
 ```
-Leap, capture, clear. GemLeap is a beautiful take on the classic peg solitaire
-(marble solitaire) puzzle — the one played on a wooden board with coloured
-gemstone marbles.
+Leap, capture, clear. GemLeap is a beautiful take on the classic peg solitaire (marble solitaire) puzzle - the one played on a wooden board with colourful gemstone marbles.
 
-The rules are simple, the challenge is deep: jump one stone over its neighbour
-into an empty hole, and the jumped stone is removed. Keep going until no moves
-remain. Clear the board down to a single stone to win.
+The rules are simple, the challenge is deep: jump one stone over its neighbour into an empty hole, and the jumped stone is removed. Keep going until no moves remain. Clear the board down to a single stone to win.
 
-No timers, no pressure, no ads interrupting every tap — just a satisfying,
-brain-teasing puzzle you can pick up for two minutes or lose an hour to.
+No timers, no pressure - just a satisfying, brain-teasing puzzle you can pick up for two minutes or lose an hour to.
 
-FEATURES
-• Classic 33-hole board rendered as polished wood with hand-shaded gemstone
-  marbles — malachite, lapis, tiger eye, amethyst, turquoise and more.
-• A new DAILY CHALLENGE every day — the same board for everyone, with its own
-  win streak to protect.
-• Endless free play with a fresh randomised board every game.
-• Hints when you're stuck, and unlimited undo so you can explore.
-• Smooth animated jumps, gentle sound, and haptic feedback.
-• Stats that track your games, win rate, best result, and streaks.
-• Play fully offline. Works on phones and tablets.
+Features:
+- Classic 33-hole board rendered as polished wood with hand-shaded gemstone marbles: malachite, lapis, tiger eye, amethyst, turquoise and more.
+- A new Daily Challenge every day, the same board for everyone, with its own win streak to protect.
+- Endless free play with a fresh randomised board every game.
+- Hints when you are stuck, and unlimited undo so you can explore.
+- Smooth animated jumps, gentle sound, and haptic feedback.
+- Stats that track your games, win rate, best result, and streaks.
+- Play fully offline. Works on phones and tablets.
 
-Whether you call it peg solitaire, marble solitaire, brainvita, or the
-gemstone board game your grandparents had on the shelf — GemLeap is the cosy,
-polished version for your pocket.
+Whether you call it peg solitaire, marble solitaire, brainvita, or the gemstone board game your grandparents had on the shelf, GemLeap is the cosy, polished version for your pocket.
 
 Can you finish with a single gem?
 ```
