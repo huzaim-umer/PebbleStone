@@ -1,6 +1,6 @@
 # Privacy Policy for GemLeap
 
-_Last updated: [DATE — e.g. 22 July 2026]_
+_Last updated: 31 July 2026_
 
 This privacy policy explains how the GemLeap app ("we", "the app") handles
 information. By using GemLeap you agree to this policy.
@@ -39,7 +39,7 @@ We may update this policy from time to time. Material changes will be reflected
 by updating the "Last updated" date above.
 
 ## Contact
-Questions? Contact us at: **[YOUR SUPPORT EMAIL]**
+Questions? Contact us at: **huzaimumer1@gmail.com**
 
 ---
 
