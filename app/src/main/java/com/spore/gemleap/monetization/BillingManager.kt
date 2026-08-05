@@ -81,9 +81,11 @@ class BillingManager(
                 )
             )
             .build()
-        client.queryProductDetailsAsync(params) { result, products ->
+        // Billing 8.0 changed this callback to deliver a QueryProductDetailsResult
+        // instead of a raw List<ProductDetails>.
+        client.queryProductDetailsAsync(params) { result, queryResult ->
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                productDetails = products.firstOrNull()
+                productDetails = queryResult.productDetailsList.firstOrNull()
                 priceText = productDetails?.oneTimePurchaseOfferDetails?.formattedPrice
             } else {
                 Log.w(TAG, "Product query failed: ${result.debugMessage}")

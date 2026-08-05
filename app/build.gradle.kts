@@ -81,7 +81,7 @@ dependencies {
     // Monetization
     implementation("com.google.android.gms:play-services-ads:23.6.0")   // AdMob (interstitial)
     implementation("com.google.android.ump:user-messaging-platform:3.1.0") // GDPR consent
-    implementation("com.android.billingclient:billing-ktx:7.1.1")       // Play Billing (Remove Ads)
+    implementation("com.android.billingclient:billing:8.0.0")           // Play Billing (Remove Ads)
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
