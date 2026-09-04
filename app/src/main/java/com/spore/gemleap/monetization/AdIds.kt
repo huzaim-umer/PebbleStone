@@ -16,7 +16,7 @@ object AdIds {
      * ads can get your AdMob account suspended). Flip to FALSE only for the
      * production release that goes to the Play "production" track.
      */
-    const val USE_TEST = true
+    const val USE_TEST = false
 
     private const val TEST_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712"
     private const val REAL_INTERSTITIAL = "ca-app-pub-4559645833837224/4920816424"
