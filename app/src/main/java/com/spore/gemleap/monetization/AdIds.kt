@@ -21,8 +21,23 @@ object AdIds {
     private const val TEST_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712"
     private const val REAL_INTERSTITIAL = "ca-app-pub-4559645833837224/4920816424"
 
+    private const val TEST_REWARDED = "ca-app-pub-3940256099942544/5224354917"
+    // TODO(rewarded): paste your AdMob "Rewarded" ad unit id here, then it goes live.
+    private const val REAL_REWARDED = ""
+
     val interstitial: String
         get() = if (USE_TEST) TEST_INTERSTITIAL else REAL_INTERSTITIAL
+
+    /**
+     * Rewarded (watch-for-hint) unit, or null when no real unit is configured yet -
+     * in that case the app simply gives hints for free instead of showing an ad.
+     */
+    val rewarded: String?
+        get() = when {
+            USE_TEST -> TEST_REWARDED
+            REAL_REWARDED.isNotEmpty() -> REAL_REWARDED
+            else -> null
+        }
 
     /** In-app product id — must match the product you create in Play Console. */
     const val PRODUCT_REMOVE_ADS = "remove_ads"

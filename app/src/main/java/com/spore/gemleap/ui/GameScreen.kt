@@ -70,6 +70,7 @@ fun GameScreen(
     onRemoveAds: () -> Unit = {},
     onRestorePurchases: () -> Unit = {},
     onNewGameStarted: () -> Unit = {},
+    onWatchHintAd: (onGranted: () -> Unit) -> Unit = { it() },
 ) {
     val context = LocalContext.current
     val repo = remember { StatsRepository(context) }
@@ -79,6 +80,7 @@ fun GameScreen(
     val state = controller.state
 
     var showStats by remember { mutableStateOf(false) }
+    var showHintPrompt by remember { mutableStateOf(false) }
     var soundOn by remember { mutableStateOf(repo.loadSoundOn()) }
     sound.muted = !soundOn
 
@@ -214,7 +216,10 @@ fun GameScreen(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             OutlinedButton(
-                onClick = controller::showHint,
+                onClick = {
+                    // Paying users get free hints; others watch a rewarded ad.
+                    if (adsRemoved) controller.showHint() else showHintPrompt = true
+                },
                 enabled = !state.isGameOver,
                 modifier = Modifier.weight(1f),
             ) {
@@ -257,6 +262,23 @@ fun GameScreen(
                 )
             }
         }
+    }
+
+    if (showHintPrompt) {
+        AlertDialog(
+            onDismissRequest = { showHintPrompt = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    showHintPrompt = false
+                    onWatchHintAd { controller.showHint() }
+                }) { Text("Watch") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showHintPrompt = false }) { Text("Cancel") }
+            },
+            title = { Text("Need a hint?") },
+            text = { Text("Watch a short ad to reveal one legal move.") },
+        )
     }
 
     if (showStats) {

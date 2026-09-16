@@ -13,6 +13,7 @@ import com.spore.gemleap.data.StatsRepository
 import com.spore.gemleap.monetization.BillingManager
 import com.spore.gemleap.monetization.ConsentManager
 import com.spore.gemleap.monetization.InterstitialAdManager
+import com.spore.gemleap.monetization.RewardedAdManager
 import com.spore.gemleap.ui.GameScreen
 import com.spore.gemleap.ui.theme.PebbleStoneTheme
 import com.spore.gemleap.ui.theme.WoodDark
@@ -21,6 +22,7 @@ import com.google.android.gms.ads.MobileAds
 class MainActivity : ComponentActivity() {
     private lateinit var billing: BillingManager
     private lateinit var interstitial: InterstitialAdManager
+    private lateinit var rewarded: RewardedAdManager
     private lateinit var consent: ConsentManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,11 +32,13 @@ class MainActivity : ComponentActivity() {
         val repo = StatsRepository(this)
         billing = BillingManager(this, repo).also { it.connect() }
         interstitial = InterstitialAdManager(this)
+        rewarded = RewardedAdManager(this)
         consent = ConsentManager(this)
-        // Gather GDPR consent, then initialise ads and preload the interstitial.
+        // Gather GDPR consent, then initialise ads and preload interstitial + rewarded.
         consent.gatherConsent(this) {
             MobileAds.initialize(this) { }
             interstitial.onAdsAvailable()
+            rewarded.onAdsAvailable()
         }
 
         setContent {
@@ -47,6 +51,7 @@ class MainActivity : ComponentActivity() {
                         onRemoveAds = { billing.purchaseRemoveAds(this@MainActivity) },
                         onRestorePurchases = { billing.queryPurchases() },
                         onNewGameStarted = { interstitial.onGameStarted(billing.adsRemoved) },
+                        onWatchHintAd = { grant -> rewarded.showThenGrant(grant) },
                     )
                 }
             }
