@@ -2,6 +2,7 @@ package com.spore.gemleap.data
 
 import android.content.Context
 import com.spore.gemleap.model.GameStats
+import com.spore.gemleap.model.ThemeId
 import com.spore.gemleap.ui.DailyState
 import kotlin.math.min
 
@@ -88,6 +89,15 @@ class StatsRepository(context: Context) {
         prefs.edit().putBoolean(KEY_ADS_REMOVED, removed).apply()
     }
 
+    /** Selected visual theme, stored by [ThemeId] name (defaults to Lamplight). */
+    fun loadThemeId(): ThemeId =
+        runCatching { ThemeId.valueOf(prefs.getString(KEY_THEME, ThemeId.LAMPLIGHT.name)!!) }
+            .getOrDefault(ThemeId.LAMPLIGHT)
+
+    fun saveThemeId(id: ThemeId) {
+        prefs.edit().putString(KEY_THEME, id.name).apply()
+    }
+
     private companion object {
         const val KEY_PLAYED = "games_played"
         const val KEY_WON = "games_won"
@@ -99,5 +109,6 @@ class StatsRepository(context: Context) {
         const val KEY_DAILY_BEST_STREAK = "daily_best_streak"
         const val KEY_SOUND_ON = "sound_on"
         const val KEY_ADS_REMOVED = "ads_removed"
+        const val KEY_THEME = "theme_id"
     }
 }

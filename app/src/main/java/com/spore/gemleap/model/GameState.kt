@@ -93,7 +93,7 @@ class GameState private constructor(
         fun newGame(emptyHole: Pos = CENTER, seed: Long = 0L): GameState {
             val marbles = PLAYABLE.filter { it != emptyHole }.toSet()
             // Deterministic but visually varied gemstone assignment (spatial hash + seed).
-            val palette = GemPalette.count
+            val palette = GemPalette.SLOTS
             val s = seed.toInt() * -0x61c88647 // golden-ratio mix
             val gems = marbles.associateWith { p ->
                 val h = (p.r * 73856093) xor (p.c * 19349663) xor (p.r * p.c * 83492791) xor s

@@ -13,8 +13,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import com.spore.gemleap.model.GameState
+import com.spore.gemleap.model.GameTheme
 import com.spore.gemleap.model.Gem
-import com.spore.gemleap.model.GemPalette
 import com.spore.gemleap.model.Move
 import com.spore.gemleap.model.Pos
 
@@ -48,6 +48,7 @@ private class BoardGeometry(val side: Float) {
 @Composable
 fun BoardView(
     state: GameState,
+    theme: GameTheme,
     selected: Pos?,
     destinations: Set<Pos>,
     hint: Move?,
@@ -57,6 +58,8 @@ fun BoardView(
     onTapCell: (Pos) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    fun gemFor(index: Int): Gem = theme.gems[((index % theme.gems.size) + theme.gems.size) % theme.gems.size]
+
     Canvas(
         modifier = modifier
             .aspectRatio(1f)
@@ -70,24 +73,21 @@ fun BoardView(
     ) {
         val geo = BoardGeometry(size.width)
         val animating = anim != null && animProgress < 1f
-        drawBoard(geo)
+        drawBoard(geo, theme)
         // Holes first, then marbles on top.
         for (p in GameState.PLAYABLE) {
-            drawHole(geo.centerOf(p), geo.holeR, highlighted = p in destinations)
+            drawHole(geo.centerOf(p), geo.holeR, highlighted = p in destinations, theme = theme)
         }
         for (p in GameState.PLAYABLE) {
             if (state.isMarble(p)) {
-                // While animating, the destination stone is drawn as the moving one below.
                 if (animating && p == anim!!.to) continue
-                val gem = GemPalette[state.gemAt(p) ?: 0]
-                drawMarble(geo.centerOf(p), geo.marbleR, gem, selected = p == selected)
+                drawMarble(geo.centerOf(p), geo.marbleR, gemFor(state.gemAt(p) ?: 0), theme, selected = p == selected)
             }
         }
         if (animating) {
             // Jumped stone fades and shrinks away.
-            val jumpedCenter = geo.centerOf(anim!!.jumped)
             drawMarble(
-                jumpedCenter, geo.marbleR, GemPalette[anim.jumpedGem],
+                geo.centerOf(anim!!.jumped), geo.marbleR, gemFor(anim.jumpedGem), theme,
                 selected = false, alpha = 1f - animProgress, scale = 1f - 0.4f * animProgress,
             )
             // Moving stone slides from source to destination.
@@ -97,35 +97,35 @@ fun BoardView(
                 from.x + (to.x - from.x) * animProgress,
                 from.y + (to.y - from.y) * animProgress,
             )
-            drawMarble(movingCenter, geo.marbleR, GemPalette[anim.movingGem], selected = false)
+            drawMarble(movingCenter, geo.marbleR, gemFor(anim.movingGem), theme, selected = false)
         }
         // Hint overlay: a pulsing ring on the marble to move and its destination.
         if (hint != null && !animating) {
-            drawPulseRing(geo.centerOf(hint.from), geo.marbleR, pulse)
-            drawPulseRing(geo.centerOf(hint.to), geo.marbleR, pulse)
+            drawPulseRing(geo.centerOf(hint.from), geo.marbleR, pulse, theme.hintRing)
+            drawPulseRing(geo.centerOf(hint.to), geo.marbleR, pulse, theme.hintRing)
         }
     }
 }
 
-private fun DrawScope.drawPulseRing(center: Offset, r: Float, pulse: Float) {
+private fun DrawScope.drawPulseRing(center: Offset, r: Float, pulse: Float, color: Color) {
     val scale = 1.05f + 0.25f * pulse
     val alpha = 0.85f - 0.55f * pulse
     drawCircle(
-        color = Color(0xFF6BD37A).copy(alpha = alpha),
+        color = color.copy(alpha = alpha),
         radius = r * scale,
         center = center,
         style = Stroke(width = r * 0.14f),
     )
 }
 
-private fun DrawScope.drawBoard(geo: BoardGeometry) {
+private fun DrawScope.drawBoard(geo: BoardGeometry, theme: GameTheme) {
     val side = geo.side
-    // Dark charcoal disk with a faint lamp-lit sheen from the top-left.
+    // Board disk with a faint lit sheen from the top-left.
     drawCircle(
         brush = Brush.radialGradient(
-            0f to Color(0xFF3A3F48),
-            0.6f to Color(0xFF2A2D34),
-            1f to Color(0xFF14161B),
+            0f to theme.discOuter,
+            0.6f to theme.discMid,
+            1f to theme.discInner,
             center = Offset(side * 0.42f, side * 0.38f),
             radius = side * 0.62f,
         ),
@@ -149,8 +149,8 @@ private fun DrawScope.drawBoard(geo: BoardGeometry) {
     val innerR = geo.gridArea * 0.62f
     drawCircle(
         brush = Brush.radialGradient(
-            0f to Color(0xFF2E323A),
-            1f to Color(0xFF16181E),
+            0f to theme.surfaceOuter,
+            1f to theme.surfaceInner,
             center = geo.center,
             radius = innerR,
         ),
@@ -165,13 +165,13 @@ private fun DrawScope.drawBoard(geo: BoardGeometry) {
     )
 }
 
-private fun DrawScope.drawHole(center: Offset, r: Float, highlighted: Boolean) {
-    // Recessed hole: near-black centre fading to a faint cool rim.
+private fun DrawScope.drawHole(center: Offset, r: Float, highlighted: Boolean, theme: GameTheme) {
+    // Recessed hole: dark centre fading to a lit lower rim.
     drawCircle(
         brush = Brush.radialGradient(
-            0f to Color(0xFF08090C),
-            0.7f to Color(0xFF12141A),
-            1f to Color(0xFF2C313A),
+            0f to theme.holeCenter,
+            0.7f to theme.holeMid,
+            1f to theme.holeRim,
             center = center - Offset(0f, r * 0.3f),
             radius = r * 1.4f,
         ),
@@ -179,14 +179,10 @@ private fun DrawScope.drawHole(center: Offset, r: Float, highlighted: Boolean) {
         center = center,
     )
     if (highlighted) {
-        // Soft lamp-yellow target ring for a legal destination.
+        // Soft accent target ring for a legal destination.
+        drawCircle(color = theme.accent.copy(alpha = 0.33f), radius = r * 1.15f, center = center)
         drawCircle(
-            color = Color(0x55F2C94C),
-            radius = r * 1.15f,
-            center = center,
-        )
-        drawCircle(
-            color = Color(0xFFF2C94C),
+            color = theme.accent,
             radius = r * 0.98f,
             center = center,
             style = Stroke(width = r * 0.16f),
@@ -198,6 +194,7 @@ private fun DrawScope.drawMarble(
     center: Offset,
     r: Float,
     gem: Gem,
+    theme: GameTheme,
     selected: Boolean,
     alpha: Float = 1f,
     scale: Float = 1f,
@@ -205,8 +202,8 @@ private fun DrawScope.drawMarble(
     val radius = (if (selected) r * 1.06f else r) * scale
 
     if (selected) {
-        drawCircle(color = Color(0x88F2C94C), radius = radius * 1.28f, center = center, alpha = alpha)
-        drawCircle(color = Color(0x44F2C94C), radius = radius * 1.5f, center = center, alpha = alpha)
+        drawCircle(color = theme.accent.copy(alpha = 0.53f), radius = radius * 1.28f, center = center, alpha = alpha)
+        drawCircle(color = theme.accent.copy(alpha = 0.27f), radius = radius * 1.5f, center = center, alpha = alpha)
     }
 
     // Contact shadow on the board beneath the marble.

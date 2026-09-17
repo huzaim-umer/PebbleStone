@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
@@ -57,8 +59,9 @@ import androidx.compose.ui.unit.sp
 import com.spore.gemleap.audio.SoundManager
 import com.spore.gemleap.data.StatsRepository
 import com.spore.gemleap.model.GameStats
-import com.spore.gemleap.ui.theme.Amber
-import com.spore.gemleap.ui.theme.WoodDark
+import com.spore.gemleap.model.GameTheme
+import com.spore.gemleap.model.GameThemes
+import com.spore.gemleap.model.ThemeId
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -80,8 +83,11 @@ fun GameScreen(
     val state = controller.state
 
     var showStats by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
     var showHintPrompt by remember { mutableStateOf(false) }
     var soundOn by remember { mutableStateOf(repo.loadSoundOn()) }
+    var themeId by remember { mutableStateOf(repo.loadThemeId()) }
+    val theme = GameThemes.of(themeId)
     sound.muted = !soundOn
 
     DisposableEffect(Unit) {
@@ -125,13 +131,19 @@ fun GameScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(0f to Color(0xFF1A1D22), 1f to WoodDark))
+            .background(Brush.verticalGradient(0f to theme.bgTop, 1f to theme.bgBottom))
             .padding(horizontal = 20.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Title with a sound toggle pinned to the right.
+        // Title with settings (left) and sound toggle (right).
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text("GemLeap", color = Amber, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text("GemLeap", color = theme.accent, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            IconButton(
+                onClick = { showSettings = true },
+                modifier = Modifier.align(Alignment.CenterStart),
+            ) {
+                Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = theme.accent)
+            }
             IconButton(
                 onClick = {
                     soundOn = !soundOn
@@ -142,7 +154,7 @@ fun GameScreen(
                 Icon(
                     if (soundOn) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
                     contentDescription = if (soundOn) "Mute" else "Unmute",
-                    tint = Amber,
+                    tint = theme.accent,
                 )
             }
         }
@@ -156,21 +168,21 @@ fun GameScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row {
-                ModeChip("Free", controller.mode == GameMode.FREE) { controller.startFree() }
+                ModeChip("Free", controller.mode == GameMode.FREE, theme) { controller.startFree() }
                 Spacer(Modifier.width(8.dp))
-                ModeChip("Daily", controller.mode == GameMode.DAILY) { controller.startDaily() }
+                ModeChip("Daily", controller.mode == GameMode.DAILY, theme) { controller.startDaily() }
             }
             IconButton(onClick = { showStats = true }) {
-                Icon(Icons.Filled.Leaderboard, contentDescription = "Statistics", tint = Amber)
+                Icon(Icons.Filled.Leaderboard, contentDescription = "Statistics", tint = theme.accent)
             }
         }
 
         Spacer(Modifier.height(10.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            StatChip("Stones", state.remaining.toString())
+            StatChip("Stones", state.remaining.toString(), theme)
             Spacer(Modifier.width(10.dp))
-            StatChip("Streak", controller.lifetimeStats.currentStreak.toString())
+            StatChip("Streak", controller.lifetimeStats.currentStreak.toString(), theme)
         }
 
         if (controller.mode == GameMode.DAILY) {
@@ -178,7 +190,7 @@ fun GameScreen(
                 .format(DateTimeFormatter.ofPattern("MMM d"))
             Text(
                 text = if (controller.dailySolvedToday) "Daily · $dateLabel · solved ✓" else "Daily · $dateLabel",
-                color = Color(0xFFA8ADB5),
+                color = theme.secondaryText,
                 fontSize = 13.sp,
                 modifier = Modifier.padding(top = 8.dp),
             )
@@ -192,6 +204,7 @@ fun GameScreen(
         ) {
             BoardView(
                 state = state,
+                theme = theme,
                 selected = controller.selected,
                 destinations = controller.destinations,
                 hint = controller.hint,
@@ -205,6 +218,7 @@ fun GameScreen(
                     win = state.isWin,
                     remaining = state.remaining,
                     daily = controller.mode == GameMode.DAILY,
+                    theme = theme,
                 )
             }
         }
@@ -221,6 +235,8 @@ fun GameScreen(
                     if (adsRemoved) controller.showHint() else showHintPrompt = true
                 },
                 enabled = !state.isGameOver,
+                border = BorderStroke(1.dp, theme.accent.copy(alpha = 0.7f)),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = theme.accent),
                 modifier = Modifier.weight(1f),
             ) {
                 Icon(Icons.Filled.Lightbulb, contentDescription = null)
@@ -230,6 +246,8 @@ fun GameScreen(
             OutlinedButton(
                 onClick = controller::undo,
                 enabled = controller.canUndo,
+                border = BorderStroke(1.dp, theme.accent.copy(alpha = 0.7f)),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = theme.accent),
                 modifier = Modifier.weight(1f),
             ) {
                 Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = null)
@@ -241,7 +259,7 @@ fun GameScreen(
                     controller.restart()
                     onNewGameStarted()
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Amber, contentColor = WoodDark),
+                colors = ButtonDefaults.buttonColors(containerColor = theme.accent, contentColor = theme.bgBottom),
                 modifier = Modifier.weight(1f),
             ) {
                 Icon(Icons.Filled.Refresh, contentDescription = null)
@@ -257,7 +275,7 @@ fun GameScreen(
             TextButton(onClick = onRemoveAds) {
                 Text(
                     text = "Remove Ads" + (removeAdsPrice?.let { " · $it" } ?: ""),
-                    color = Color(0xFFA8ADB5),
+                    color = theme.secondaryText,
                     fontSize = 13.sp,
                 )
             }
@@ -290,12 +308,73 @@ fun GameScreen(
             onDismiss = { showStats = false },
         )
     }
+
+    if (showSettings) {
+        SettingsDialog(
+            theme = theme,
+            selected = themeId,
+            soundOn = soundOn,
+            onSelectTheme = {
+                themeId = it
+                repo.saveThemeId(it)
+            },
+            onToggleSound = {
+                soundOn = !soundOn
+                repo.saveSoundOn(soundOn)
+            },
+            onDismiss = { showSettings = false },
+        )
+    }
 }
 
 @Composable
-private fun ModeChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    val bg = if (selected) Amber else Color(0x33000000)
-    val fg = if (selected) WoodDark else Color(0xFFA8ADB5)
+private fun SettingsDialog(
+    theme: GameTheme,
+    selected: ThemeId,
+    soundOn: Boolean,
+    onSelectTheme: (ThemeId) -> Unit,
+    onToggleSound: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Done") } },
+        title = { Text("Settings") },
+        text = {
+            Column {
+                Text("Theme", fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    GameThemes.all.forEach { t ->
+                        ModeChip(t.label, t.id == selected, theme) { onSelectTheme(t.id) }
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("Sound")
+                    Text(
+                        text = if (soundOn) "On" else "Off",
+                        color = theme.accent,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable(onClick = onToggleSound)
+                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                    )
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun ModeChip(label: String, selected: Boolean, theme: GameTheme, onClick: () -> Unit) {
+    val bg = if (selected) theme.accent else Color(0x33000000)
+    val fg = if (selected) theme.bgBottom else theme.secondaryText
     Text(
         text = label,
         color = fg,
@@ -310,7 +389,7 @@ private fun ModeChip(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun StatChip(label: String, value: String) {
+private fun StatChip(label: String, value: String, theme: GameTheme) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(24.dp))
@@ -318,18 +397,18 @@ private fun StatChip(label: String, value: String) {
             .padding(horizontal = 18.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, color = Color(0xFFA8ADB5), fontSize = 14.sp)
+        Text(label, color = theme.secondaryText, fontSize = 14.sp)
         Spacer(Modifier.width(8.dp))
-        Text(value, color = Amber, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(value, color = theme.accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
     }
 }
 
 @Composable
-private fun GameOverBanner(win: Boolean, remaining: Int, daily: Boolean) {
+private fun GameOverBanner(win: Boolean, remaining: Int, daily: Boolean, theme: GameTheme) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xEE14161C))
+            .background(theme.bannerBg)
             .padding(horizontal = 28.dp, vertical = 22.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -341,13 +420,13 @@ private fun GameOverBanner(win: Boolean, remaining: Int, daily: Boolean) {
                     remaining <= 3 -> "So close!"
                     else -> "No moves left"
                 },
-                color = Amber,
+                color = theme.accent,
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
             )
             Text(
                 text = if (win) "You cleared the board." else "$remaining stones remain.",
-                color = Color(0xFFA8ADB5),
+                color = theme.secondaryText,
                 fontSize = 15.sp,
                 modifier = Modifier.padding(top = 6.dp),
             )
