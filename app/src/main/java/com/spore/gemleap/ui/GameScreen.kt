@@ -125,7 +125,7 @@ fun GameScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(0f to Color(0xFF3A2718), 1f to WoodDark))
+            .background(Brush.verticalGradient(0f to Color(0xFF1A1D22), 1f to WoodDark))
             .padding(horizontal = 20.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -178,7 +178,7 @@ fun GameScreen(
                 .format(DateTimeFormatter.ofPattern("MMM d"))
             Text(
                 text = if (controller.dailySolvedToday) "Daily · $dateLabel · solved ✓" else "Daily · $dateLabel",
-                color = Color(0xFFCBB79E),
+                color = Color(0xFFA8ADB5),
                 fontSize = 13.sp,
                 modifier = Modifier.padding(top = 8.dp),
             )
@@ -257,7 +257,7 @@ fun GameScreen(
             TextButton(onClick = onRemoveAds) {
                 Text(
                     text = "Remove Ads" + (removeAdsPrice?.let { " · $it" } ?: ""),
-                    color = Color(0xFFCBB79E),
+                    color = Color(0xFFA8ADB5),
                     fontSize = 13.sp,
                 )
             }
@@ -295,7 +295,7 @@ fun GameScreen(
 @Composable
 private fun ModeChip(label: String, selected: Boolean, onClick: () -> Unit) {
     val bg = if (selected) Amber else Color(0x33000000)
-    val fg = if (selected) WoodDark else Color(0xFFCBB79E)
+    val fg = if (selected) WoodDark else Color(0xFFA8ADB5)
     Text(
         text = label,
         color = fg,
@@ -318,7 +318,7 @@ private fun StatChip(label: String, value: String) {
             .padding(horizontal = 18.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, color = Color(0xFFCBB79E), fontSize = 14.sp)
+        Text(label, color = Color(0xFFA8ADB5), fontSize = 14.sp)
         Spacer(Modifier.width(8.dp))
         Text(value, color = Amber, fontSize = 20.sp, fontWeight = FontWeight.Bold)
     }
@@ -329,7 +329,7 @@ private fun GameOverBanner(win: Boolean, remaining: Int, daily: Boolean) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xEE1E140A))
+            .background(Color(0xEE14161C))
             .padding(horizontal = 28.dp, vertical = 22.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -347,7 +347,7 @@ private fun GameOverBanner(win: Boolean, remaining: Int, daily: Boolean) {
             )
             Text(
                 text = if (win) "You cleared the board." else "$remaining stones remain.",
-                color = Color(0xFFCBB79E),
+                color = Color(0xFFA8ADB5),
                 fontSize = 15.sp,
                 modifier = Modifier.padding(top = 6.dp),
             )

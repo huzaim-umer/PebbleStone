@@ -120,12 +120,12 @@ private fun DrawScope.drawPulseRing(center: Offset, r: Float, pulse: Float) {
 
 private fun DrawScope.drawBoard(geo: BoardGeometry) {
     val side = geo.side
-    // Full wooden disk with a warm radial sheen.
+    // Dark charcoal disk with a faint lamp-lit sheen from the top-left.
     drawCircle(
         brush = Brush.radialGradient(
-            0f to Color(0xFF9A6A3E),
-            0.6f to Color(0xFF6B4526),
-            1f to Color(0xFF3A2614),
+            0f to Color(0xFF3A3F48),
+            0.6f to Color(0xFF2A2D34),
+            1f to Color(0xFF14161B),
             center = Offset(side * 0.42f, side * 0.38f),
             radius = side * 0.62f,
         ),
@@ -149,8 +149,8 @@ private fun DrawScope.drawBoard(geo: BoardGeometry) {
     val innerR = geo.gridArea * 0.62f
     drawCircle(
         brush = Brush.radialGradient(
-            0f to Color(0xFF7A5330),
-            1f to Color(0xFF4A3018),
+            0f to Color(0xFF2E323A),
+            1f to Color(0xFF16181E),
             center = geo.center,
             radius = innerR,
         ),
@@ -166,12 +166,12 @@ private fun DrawScope.drawBoard(geo: BoardGeometry) {
 }
 
 private fun DrawScope.drawHole(center: Offset, r: Float, highlighted: Boolean) {
-    // Recessed hole: dark centre fading to a lit lower rim.
+    // Recessed hole: near-black centre fading to a faint cool rim.
     drawCircle(
         brush = Brush.radialGradient(
-            0f to Color(0xFF14100A),
-            0.7f to Color(0xFF241A0F),
-            1f to Color(0xFF5A3E22),
+            0f to Color(0xFF08090C),
+            0.7f to Color(0xFF12141A),
+            1f to Color(0xFF2C313A),
             center = center - Offset(0f, r * 0.3f),
             radius = r * 1.4f,
         ),
@@ -179,14 +179,14 @@ private fun DrawScope.drawHole(center: Offset, r: Float, highlighted: Boolean) {
         center = center,
     )
     if (highlighted) {
-        // Soft amber target ring for a legal destination.
+        // Soft lamp-yellow target ring for a legal destination.
         drawCircle(
-            color = Color(0x55E0A458),
+            color = Color(0x55F2C94C),
             radius = r * 1.15f,
             center = center,
         )
         drawCircle(
-            color = Color(0xFFE0A458),
+            color = Color(0xFFF2C94C),
             radius = r * 0.98f,
             center = center,
             style = Stroke(width = r * 0.16f),
@@ -205,8 +205,8 @@ private fun DrawScope.drawMarble(
     val radius = (if (selected) r * 1.06f else r) * scale
 
     if (selected) {
-        drawCircle(color = Color(0x88E0A458), radius = radius * 1.28f, center = center, alpha = alpha)
-        drawCircle(color = Color(0x44E0A458), radius = radius * 1.5f, center = center, alpha = alpha)
+        drawCircle(color = Color(0x88F2C94C), radius = radius * 1.28f, center = center, alpha = alpha)
+        drawCircle(color = Color(0x44F2C94C), radius = radius * 1.5f, center = center, alpha = alpha)
     }
 
     // Contact shadow on the board beneath the marble.
