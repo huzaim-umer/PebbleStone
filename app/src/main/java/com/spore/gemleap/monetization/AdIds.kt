@@ -22,8 +22,7 @@ object AdIds {
     private const val REAL_INTERSTITIAL = "ca-app-pub-4559645833837224/4920816424"
 
     private const val TEST_REWARDED = "ca-app-pub-3940256099942544/5224354917"
-    // TODO(rewarded): paste your AdMob "Rewarded" ad unit id here, then it goes live.
-    private const val REAL_REWARDED = ""
+    private const val REAL_REWARDED = "ca-app-pub-4559645833837224/2468163428"
 
     val interstitial: String
         get() = if (USE_TEST) TEST_INTERSTITIAL else REAL_INTERSTITIAL
