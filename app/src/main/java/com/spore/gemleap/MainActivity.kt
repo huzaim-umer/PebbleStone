@@ -52,6 +52,8 @@ class MainActivity : ComponentActivity() {
                         onRestorePurchases = { billing.queryPurchases() },
                         onNewGameStarted = { interstitial.onGameStarted(billing.adsRemoved) },
                         onWatchHintAd = { grant -> rewarded.showThenGrant(grant) },
+                        hintAdReady = rewarded.isReady,
+                        hintAdLoading = rewarded.loading,
                     )
                 }
             }
@@ -63,3 +65,4 @@ class MainActivity : ComponentActivity() {
         billing.endConnection()
     }
 }
+

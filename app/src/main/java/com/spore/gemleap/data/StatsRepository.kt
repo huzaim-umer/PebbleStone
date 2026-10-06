@@ -89,10 +89,10 @@ class StatsRepository(context: Context) {
         prefs.edit().putBoolean(KEY_ADS_REMOVED, removed).apply()
     }
 
-    /** Selected visual theme, stored by [ThemeId] name (defaults to Lamplight). */
+    /** Selected visual theme, stored by [ThemeId] name (defaults to Jewel Atelier for new installs). */
     fun loadThemeId(): ThemeId =
-        runCatching { ThemeId.valueOf(prefs.getString(KEY_THEME, ThemeId.LAMPLIGHT.name)!!) }
-            .getOrDefault(ThemeId.LAMPLIGHT)
+        runCatching { ThemeId.valueOf(prefs.getString(KEY_THEME, ThemeId.ATELIER.name)!!) }
+            .getOrDefault(ThemeId.ATELIER)
 
     fun saveThemeId(id: ThemeId) {
         prefs.edit().putString(KEY_THEME, id.name).apply()
@@ -112,3 +112,4 @@ class StatsRepository(context: Context) {
         const val KEY_THEME = "theme_id"
     }
 }
+

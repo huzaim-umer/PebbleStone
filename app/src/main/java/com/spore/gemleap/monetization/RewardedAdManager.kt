@@ -1,5 +1,8 @@
 package com.spore.gemleap.monetization
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import android.app.Activity
 import android.util.Log
 import com.google.android.gms.ads.AdError
@@ -15,9 +18,11 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
  * is ready, [showThenGrant] just grants the reward for free so the hint never blocks.
  */
 class RewardedAdManager(private val activity: Activity) {
-    private var ad: RewardedAd? = null
-    private var loading = false
-    private var adsEnabled = false
+    private var ad by mutableStateOf<RewardedAd?>(null)
+    val isReady: Boolean get() = adsEnabled && ad != null
+    var loading by mutableStateOf(false)
+        private set
+    private var adsEnabled by mutableStateOf(false)
 
     private val unitId: String? get() = AdIds.rewarded
 
@@ -81,3 +86,4 @@ class RewardedAdManager(private val activity: Activity) {
         const val TAG = "RewardedAd"
     }
 }
+

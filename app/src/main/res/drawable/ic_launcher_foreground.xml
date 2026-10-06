@@ -1,13 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <!-- five Lamplight marbles in a plus arrangement -->
-    <path android:fillColor="#E6B84C" android:pathData="M54,32m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
-    <path android:fillColor="#2E8B8B" android:pathData="M32,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
-    <path android:fillColor="#D8D2C4" android:pathData="M54,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
-    <path android:fillColor="#3E5C86" android:pathData="M76,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
-    <path android:fillColor="#B5687A" android:pathData="M54,76m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:pathData="M33,54 C33,21 71,22 75,50" android:strokeColor="#EACB88" android:strokeWidth="2.2" android:strokeLineCap="round" android:fillColor="#00000000"/>
+    <path android:pathData="M70,46L75,51L78,45" android:strokeColor="#EACB88" android:strokeWidth="2" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000"/>
+    <path android:pathData="M62,62a9,6 0,1 0,18 0a9,6 0,1 0,-18 0" android:fillColor="#071B1C" android:strokeColor="#A88750" android:strokeWidth="1.5"/>
+    <path android:pathData="M46,63a9,9 0,1 0,18 0a9,9 0,1 0,-18 0">
+        <aapt:attr name="android:fillColor"><gradient android:type="radial" android:centerX="51" android:centerY="59" android:gradientRadius="17" android:startColor="#9BC9FF" android:centerColor="#387CE0" android:endColor="#152C67"/></aapt:attr>
+    </path>
+    <path android:pathData="M27,44a13,13 0,1 0,26 0a13,13 0,1 0,-26 0">
+        <aapt:attr name="android:fillColor"><gradient android:type="radial" android:centerX="35" android:centerY="39" android:gradientRadius="25" android:startColor="#A0F2D0" android:centerColor="#20B984" android:endColor="#074A3B"/></aapt:attr>
+    </path>
+    <path android:pathData="M29,46C34,38 43,51 51,43M31,51C38,43 45,55 49,49" android:strokeColor="#156C51" android:strokeWidth="1.8" android:fillColor="#00000000"/>
+    <path android:pathData="M32,37C33,35 37,35 39,37C37,40 34,40 32,37" android:fillColor="#D5FFED"/>
+    <path android:pathData="M49,58C50,56 53,56 54,58C53,60 50,60 49,58" android:fillColor="#DEEFFF"/>
 </vector>

@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "scope": "Offline procedural reference and source-preservation checks only",
+  "positions": 33,
+  "opening_stones": 32,
+  "legal_solution_moves": 31,
+  "final_stones": 1,
+  "contrast_ratios": {
+    "body_on_surface": 10.81,
+    "secondary_on_surface": 7.41,
+    "action_on_gold": 11.21
+  },
+  "android_build": "BLOCKED: Gradle distribution unavailable; no Android SDK/emulator",
+  "device_layout_performance_talkback_billing": "NOT RUN"
+}
