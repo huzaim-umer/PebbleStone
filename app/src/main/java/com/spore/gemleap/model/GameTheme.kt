@@ -3,7 +3,7 @@ package com.spore.gemleap.model
 import androidx.compose.ui.graphics.Color
 
 /** Selectable visual themes. */
-enum class ThemeId { CLASSIC, LAMPLIGHT }
+enum class ThemeId { CLASSIC, LAMPLIGHT, VICTORIAN }
 
 /**
  * A full visual theme: screen colours, board/hole colours, accent, and the
@@ -71,6 +71,25 @@ object GameThemes {
         Gem("Indigo", Color(0xFF44487A), 1.1f),
     )
 
+    // A gaslit, aged-brass 1800s look: dark walnut and leather, antique gold
+    // accents, and muted period minerals (jet, ivory, garnet, verdigris).
+    private val VICTORIAN_GEMS = listOf(
+        Gem("Jet", Color(0xFF1C1A18), 1.15f),
+        Gem("Ivory", Color(0xFFE8DEC8), 0.7f),
+        Gem("Brass", Color(0xFFB08D4C), 1.1f),
+        Gem("Garnet", Color(0xFF7E2B2B)),
+        Gem("Emerald", Color(0xFF2F6B4A)),
+        Gem("Sapphire", Color(0xFF32507E)),
+        Gem("Amber", Color(0xFFB07A2E)),
+        Gem("Bronze", Color(0xFF8A6A3E), 1.1f),
+        Gem("Pearl", Color(0xFFD9D2C2), 0.75f),
+        Gem("Amethyst", Color(0xFF6E4C86)),
+        Gem("Verdigris", Color(0xFF4E8A7A), 0.9f),
+        Gem("Mahogany", Color(0xFF6A3A2A)),
+        Gem("Pewter", Color(0xFF6A6E72), 0.9f),
+        Gem("Teal Enamel", Color(0xFF3A6E78)),
+    )
+
     val CLASSIC = GameTheme(
         id = ThemeId.CLASSIC,
         label = "Classic Wood",
@@ -97,7 +116,24 @@ object GameThemes {
         gems = LAMPLIGHT_GEMS,
     )
 
-    val all = listOf(CLASSIC, LAMPLIGHT)
+    val VICTORIAN = GameTheme(
+        id = ThemeId.VICTORIAN,
+        label = "Victorian",
+        bgTop = Color(0xFF2E2A22), bgBottom = Color(0xFF1A1710),
+        accent = Color(0xFFC8A860), secondaryText = Color(0xFFB7A98C),
+        bannerBg = Color(0xEE181309),
+        discOuter = Color(0xFF6E5A3E), discMid = Color(0xFF4E3F2A), discInner = Color(0xFF2E2418),
+        surfaceOuter = Color(0xFF5A4A32), surfaceInner = Color(0xFF342916),
+        holeCenter = Color(0xFF100B06), holeMid = Color(0xFF1E160D), holeRim = Color(0xFF4A3A24),
+        hintRing = Color(0xFF8FB36E),
+        gems = VICTORIAN_GEMS,
+    )
 
-    fun of(id: ThemeId): GameTheme = if (id == ThemeId.LAMPLIGHT) LAMPLIGHT else CLASSIC
+    val all = listOf(CLASSIC, LAMPLIGHT, VICTORIAN)
+
+    fun of(id: ThemeId): GameTheme = when (id) {
+        ThemeId.LAMPLIGHT -> LAMPLIGHT
+        ThemeId.VICTORIAN -> VICTORIAN
+        ThemeId.CLASSIC -> CLASSIC
+    }
 }

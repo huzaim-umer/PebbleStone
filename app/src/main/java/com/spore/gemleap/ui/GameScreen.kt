@@ -13,6 +13,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -327,6 +329,7 @@ fun GameScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SettingsDialog(
     theme: GameTheme,
@@ -344,7 +347,10 @@ private fun SettingsDialog(
             Column {
                 Text("Theme", fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     GameThemes.all.forEach { t ->
                         ModeChip(t.label, t.id == selected, theme) { onSelectTheme(t.id) }
                     }

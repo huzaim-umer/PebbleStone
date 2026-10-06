@@ -42,5 +42,5 @@ object AdIds {
     const val PRODUCT_REMOVE_ADS = "remove_ads"
 
     /** Show an interstitial only once every this many games. */
-    const val GAMES_PER_INTERSTITIAL = 3
+    const val GAMES_PER_INTERSTITIAL = 2
 }
