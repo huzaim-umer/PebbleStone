@@ -1,69 +1,37 @@
 package com.spore.gemleap.ui
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Undo
-import androidx.compose.material.icons.filled.Leaderboard
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.automirrored.filled.VolumeOff
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.automirrored.outlined.Undo
+import androidx.compose.material.icons.automirrored.outlined.VolumeOff
+import androidx.compose.material.icons.automirrored.outlined.VolumeUp
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.spore.gemleap.audio.SoundManager
 import com.spore.gemleap.data.StatsRepository
-import com.spore.gemleap.model.GameStats
-import com.spore.gemleap.model.GameTheme
-import com.spore.gemleap.model.GameThemes
-import com.spore.gemleap.model.ThemeId
+import com.spore.gemleap.model.*
+import com.spore.gemleap.ui.theme.PebbleStoneTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -76,410 +44,285 @@ fun GameScreen(
     onRestorePurchases: () -> Unit = {},
     onNewGameStarted: () -> Unit = {},
     onWatchHintAd: (onGranted: () -> Unit) -> Unit = { it() },
+    hintAdReady: Boolean = false,
+    hintAdLoading: Boolean = false,
 ) {
     val context = LocalContext.current
     val repo = remember { StatsRepository(context) }
     val controller = remember { PebbleController(repo) }
     val sound = remember { SoundManager(context) }
     val haptics = LocalHapticFeedback.current
-    val state = controller.state
-
     var showStats by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
-    var showHintPrompt by remember { mutableStateOf(false) }
+    var showHint by remember { mutableStateOf(false) }
     var soundOn by remember { mutableStateOf(repo.loadSoundOn()) }
     var themeId by remember { mutableStateOf(repo.loadThemeId()) }
     val theme = GameThemes.of(themeId)
-    sound.muted = !soundOn
-
-    DisposableEffect(Unit) {
-        onDispose { sound.release() }
-    }
-
-    // Haptic tick + move sound on each committed move (final move defers to the win/lose cue).
+    SideEffect { sound.muted = !soundOn }
+    DisposableEffect(Unit) { onDispose { sound.release() } }
     LaunchedEffect(controller.moveCount) {
         if (controller.moveCount > 0) {
             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
             if (!controller.state.isGameOver) sound.playMove()
         }
     }
-    // End-of-game cue.
-    LaunchedEffect(state.isGameOver) {
-        if (state.isGameOver) {
-            if (state.isWin) sound.playWin() else sound.playLose()
+    LaunchedEffect(controller.state.isGameOver) {
+        if (controller.state.isGameOver) {
+            if (controller.state.isWin) sound.playWin() else sound.playLose()
         }
     }
-
-    // Move slide/fade animation progress (1f = idle).
-    var animProgress by remember { mutableStateOf(1f) }
+    var progress by remember { mutableStateOf(1f) }
     LaunchedEffect(controller.lastAnim?.id) {
         if (controller.lastAnim != null) {
-            animProgress = 0f
-            animate(0f, 1f, animationSpec = tween(220, easing = FastOutSlowInEasing)) { v, _ ->
-                animProgress = v
-            }
+            progress = 0f
+            animate(0f, 1f, animationSpec = tween(220, easing = FastOutSlowInEasing)) { v, _ -> progress = v }
+        } else progress = 1f
+    }
+    // No persistent idle animation. Compose's animation clock honors system scale.
+    var pulse by remember { mutableStateOf(0f) }
+    LaunchedEffect(controller.hint) {
+        pulse = 0f
+        if (controller.hint != null) repeat(3) {
+            animate(0f, 1f, animationSpec = tween(700)) { v, _ -> pulse = v }
+            animate(1f, 0f, animationSpec = tween(700)) { v, _ -> pulse = v }
         }
     }
-
-    // Gentle looping pulse (0..1) for hint rings.
-    val pulseTransition = rememberInfiniteTransition(label = "pulse")
-    val pulse by pulseTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
-        label = "pulseValue",
-    )
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(0f to theme.bgTop, 1f to theme.bgBottom))
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        // Title with settings (left) and sound toggle (right).
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text("GemLeap", color = theme.accent, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            IconButton(
-                onClick = { showSettings = true },
-                modifier = Modifier.align(Alignment.CenterStart),
-            ) {
-                Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = theme.accent)
-            }
-            IconButton(
-                onClick = {
-                    soundOn = !soundOn
-                    repo.saveSoundOn(soundOn)
-                },
-                modifier = Modifier.align(Alignment.CenterEnd),
-            ) {
-                Icon(
-                    if (soundOn) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
-                    contentDescription = if (soundOn) "Mute" else "Unmute",
-                    tint = theme.accent,
-                )
-            }
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        // Mode toggle + stats.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Row {
-                ModeChip("Free", controller.mode == GameMode.FREE, theme) { controller.startFree() }
-                Spacer(Modifier.width(8.dp))
-                ModeChip("Daily", controller.mode == GameMode.DAILY, theme) { controller.startDaily() }
-            }
-            IconButton(onClick = { showStats = true }) {
-                Icon(Icons.Filled.Leaderboard, contentDescription = "Statistics", tint = theme.accent)
-            }
-        }
-
-        Spacer(Modifier.height(10.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            StatChip("Stones", state.remaining.toString(), theme)
-            Spacer(Modifier.width(10.dp))
-            StatChip("Streak", controller.lifetimeStats.currentStreak.toString(), theme)
-        }
-
-        if (controller.mode == GameMode.DAILY) {
-            val dateLabel = LocalDate.ofEpochDay(controller.dailyEpochDay)
-                .format(DateTimeFormatter.ofPattern("MMM d"))
-            Text(
-                text = if (controller.dailySolvedToday) "Daily · $dateLabel · solved ✓" else "Daily · $dateLabel",
-                color = theme.secondaryText,
-                fontSize = 13.sp,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center,
-        ) {
-            BoardView(
-                state = state,
-                theme = theme,
-                selected = controller.selected,
-                destinations = controller.destinations,
-                hint = controller.hint,
-                pulse = pulse,
-                anim = controller.lastAnim,
-                animProgress = animProgress,
-                onTapCell = controller::onTapCell,
-            )
-            if (state.isGameOver) {
-                GameOverBanner(
-                    win = state.isWin,
-                    remaining = state.remaining,
-                    daily = controller.mode == GameMode.DAILY,
-                    theme = theme,
-                )
-            }
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            OutlinedButton(
-                onClick = {
-                    // Paying users get free hints; others watch a rewarded ad.
-                    if (adsRemoved) controller.showHint() else showHintPrompt = true
-                },
-                enabled = !state.isGameOver,
-                border = BorderStroke(1.dp, theme.accent.copy(alpha = 0.7f)),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = theme.accent),
-                modifier = Modifier.weight(1f),
-            ) {
-                Icon(Icons.Filled.Lightbulb, contentDescription = null)
-                Spacer(Modifier.width(6.dp))
-                Text("Hint")
-            }
-            OutlinedButton(
-                onClick = controller::undo,
-                enabled = controller.canUndo,
-                border = BorderStroke(1.dp, theme.accent.copy(alpha = 0.7f)),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = theme.accent),
-                modifier = Modifier.weight(1f),
-            ) {
-                Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = null)
-                Spacer(Modifier.width(6.dp))
-                Text("Undo")
-            }
-            Button(
-                onClick = {
-                    controller.restart()
-                    onNewGameStarted()
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = theme.accent, contentColor = theme.bgBottom),
-                modifier = Modifier.weight(1f),
-            ) {
-                Icon(Icons.Filled.Refresh, contentDescription = null)
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    if (controller.mode == GameMode.DAILY) "Retry" else "New",
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-        }
-
-        if (!adsRemoved) {
-            TextButton(onClick = onRemoveAds) {
-                Text(
-                    text = "Remove Ads" + (removeAdsPrice?.let { " · $it" } ?: ""),
-                    color = theme.secondaryText,
-                    fontSize = 13.sp,
-                )
-            }
-        }
+    var winHalo by remember { mutableStateOf(0f) }
+    LaunchedEffect(controller.state.isWin) {
+        if (controller.state.isWin) animate(1f, 0f, animationSpec = tween(650)) { v, _ -> winHalo = v }
+        else winHalo = 0f
     }
-
-    if (showHintPrompt) {
-        AlertDialog(
-            onDismissRequest = { showHintPrompt = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    showHintPrompt = false
-                    onWatchHintAd { controller.showHint() }
-                }) { Text("Watch") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showHintPrompt = false }) { Text("Cancel") }
-            },
-            title = { Text("Need a hint?") },
-            text = { Text("Watch a short ad to reveal one legal move.") },
+    val busy = controller.lastAnim != null && progress < 1f
+    PebbleStoneTheme(theme = theme) {
+        GameSurface(
+            modifier = modifier, state = controller.state, theme = theme, mode = controller.mode,
+            streak = if (controller.mode == GameMode.DAILY) controller.dailyStats.streak else controller.lifetimeStats.currentStreak,
+            date = if (controller.mode == GameMode.DAILY) LocalDate.ofEpochDay(controller.dailyEpochDay) else LocalDate.now(),
+            dailySolved = controller.dailySolvedToday,
+            selected = controller.selected, destinations = controller.destinations, hint = controller.hint,
+            anim = controller.lastAnim, progress = progress, pulse = pulse, winHalo = winHalo,
+            canUndo = controller.canUndo, soundOn = soundOn, adsRemoved = adsRemoved,
+            price = removeAdsPrice, busy = busy,
+            onCell = controller::onTapCell,
+            onMode = { if (it != controller.mode) { if (it == GameMode.FREE) controller.startFree() else controller.startDaily() } },
+            onSettings = { showSettings = true }, onStats = { showStats = true },
+            onSound = { soundOn = !soundOn; repo.saveSoundOn(soundOn) },
+            onHint = { if (adsRemoved) controller.showHint() else showHint = true },
+            onUndo = controller::undo,
+            onNew = { controller.restart(); onNewGameStarted() },
+            onPurchase = onRemoveAds,
         )
-    }
-
-    if (showStats) {
-        StatsDialog(
-            stats = controller.lifetimeStats,
-            daily = controller.dailyStats,
-            adsRemoved = adsRemoved,
-            onRestorePurchases = onRestorePurchases,
-            onDismiss = { showStats = false },
-        )
-    }
-
-    if (showSettings) {
-        SettingsDialog(
-            theme = theme,
-            selected = themeId,
-            soundOn = soundOn,
-            onSelectTheme = {
-                themeId = it
-                repo.saveThemeId(it)
-            },
-            onToggleSound = {
-                soundOn = !soundOn
-                repo.saveSoundOn(soundOn)
-            },
-            onDismiss = { showSettings = false },
-        )
+        if (showSettings) SettingsDialog(theme, soundOn,
+            onSelect = { themeId = it; repo.saveThemeId(it) },
+            onSound = { soundOn = !soundOn; repo.saveSoundOn(soundOn) },
+            onDismiss = { showSettings = false })
+        if (showStats) StatsDialog(controller.lifetimeStats, controller.dailyStats, adsRemoved,
+            onRestorePurchases, onDismiss = { showStats = false })
+        if (showHint) HintDialog(hintAdReady, hintAdLoading, onDismiss = { showHint = false }, onConfirm = {
+            showHint = false
+            // The existing manager grants a free hint when an ad is unavailable.
+            onWatchHintAd { controller.showHint() }
+        })
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+/** Stateless presentation also used by Android Studio previews. */
 @Composable
-private fun SettingsDialog(
-    theme: GameTheme,
-    selected: ThemeId,
-    soundOn: Boolean,
-    onSelectTheme: (ThemeId) -> Unit,
-    onToggleSound: () -> Unit,
-    onDismiss: () -> Unit,
+internal fun GameSurface(
+    state: GameState, theme: GameTheme, mode: GameMode = GameMode.FREE, streak: Int = 0,
+    date: LocalDate = LocalDate.now(), dailySolved: Boolean = false,
+    selected: Pos? = null, destinations: Set<Pos> = emptySet(), hint: Move? = null,
+    anim: MoveAnim? = null, progress: Float = 1f, pulse: Float = 0f, winHalo: Float = 0f,
+    canUndo: Boolean = false, soundOn: Boolean = true, adsRemoved: Boolean = false,
+    price: String? = null, busy: Boolean = false, modifier: Modifier = Modifier,
+    onCell: (Pos) -> Unit = {}, onMode: (GameMode) -> Unit = {},
+    onSettings: () -> Unit = {}, onStats: () -> Unit = {}, onSound: () -> Unit = {},
+    onHint: () -> Unit = {}, onUndo: () -> Unit = {}, onNew: () -> Unit = {}, onPurchase: () -> Unit = {},
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
+    BoxWithConstraints(modifier.fillMaxSize().background(Brush.verticalGradient(listOf(theme.bgTop, theme.bgBottom)))) {
+        val viewportHeight = maxHeight
+        Column(
+            Modifier.widthIn(max = 600.dp).fillMaxWidth().align(Alignment.TopCenter)
+                .verticalScroll(rememberScrollState()).heightIn(min = viewportHeight)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onSettings) {
+                    Icon(Icons.Outlined.Settings, "Settings", tint = theme.accent)
+                }
+                Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("GemLeap", color = MaterialTheme.colorScheme.onSurface, fontSize = 27.sp,
+                        fontWeight = FontWeight.SemiBold, maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    Text("ONE STONE. A LITTLE WONDER.", color = theme.secondaryText, fontSize = 9.sp,
+                        letterSpacing = 1.sp, textAlign = TextAlign.Center)
+                }
+                IconButton(onClick = onSound) {
+                    Icon(if (soundOn) Icons.AutoMirrored.Outlined.VolumeUp else Icons.AutoMirrored.Outlined.VolumeOff,
+                        if (soundOn) "Mute sound" else "Enable sound", tint = theme.accent)
+                }
+            }
+            Spacer(Modifier.height(18.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                ModeTab("Free", mode == GameMode.FREE, !busy, Modifier.weight(1f)) { onMode(GameMode.FREE) }
+                ModeTab("Daily", mode == GameMode.DAILY, !busy, Modifier.weight(1f)) { onMode(GameMode.DAILY) }
+                IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, "Statistics", tint = theme.accent) }
+            }
+            Spacer(Modifier.height(18.dp))
+            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                Metric("STONES LEFT", state.remaining.toString())
+                Metric(if (mode == GameMode.DAILY) "DAILY STREAK" else "WIN STREAK", streak.toString(), end = true)
+            }
+            Text(
+                if (mode == GameMode.DAILY) date.format(DateTimeFormatter.ofPattern("EEEE, MMM d")) + if (dailySolved) " · Solved ✓" else ""
+                else "A quiet moment. A clever move.",
+                color = theme.secondaryText, fontSize = 12.sp, modifier = Modifier.padding(top = 12.dp), textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(12.dp))
+            BoardView(state, theme, selected, destinations, hint, pulse, anim, progress, onCell,
+                Modifier.widthIn(max = 520.dp).fillMaxWidth(), winHalo = winHalo)
+            if (state.isGameOver && !busy) {
+                ResultPanel(state.isWin, state.remaining, mode == GameMode.DAILY)
+            } else {
+                Text(when {
+                    hint != null -> "Follow the marked stone to its destination"
+                    selected != null -> "Tap a marked socket to leap"
+                    else -> "Jump a stone. Leave just one."
+                }, color = theme.secondaryText, fontSize = 13.sp, textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(vertical = 12.dp))
+            }
+            Spacer(Modifier.weight(1f))
+            Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionButton("Hint", Icons.Outlined.Lightbulb, !state.isGameOver && !busy, false, Modifier.weight(1f), onHint)
+                ActionButton("Undo", Icons.AutoMirrored.Outlined.Undo, canUndo && !busy, false, Modifier.weight(1f), onUndo)
+                ActionButton(if (mode == GameMode.DAILY || state.isGameOver && !state.isWin) "Retry" else "New",
+                    Icons.Outlined.Refresh, !busy, true, Modifier.weight(1f), onNew)
+            }
+            if (!adsRemoved) {
+                TextButton(onClick = onPurchase, enabled = price != null, modifier = Modifier.padding(top = 4.dp)) {
+                    Text(if (price != null) "Remove ads · $price" else "Remove ads · Price unavailable", fontSize = 12.sp, textAlign = TextAlign.Center)
+                }
+            } else Spacer(Modifier.height(20.dp))
+        }
+    }
+}
+
+@Composable
+private fun ModeTab(label: String, selected: Boolean, enabled: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    Surface(modifier.clip(RoundedCornerShape(16.dp)).selectable(selected, enabled = enabled, role = Role.Tab, onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+        contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))) {
+        Box(Modifier.heightIn(min = 48.dp).padding(12.dp), contentAlignment = Alignment.Center) {
+            Text(label, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+        }
+    }
+}
+
+@Composable
+private fun Metric(label: String, value: String, end: Boolean = false) {
+    Column(horizontalAlignment = if (end) Alignment.End else Alignment.Start) {
+        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp, letterSpacing = 1.sp)
+        Text(value, color = MaterialTheme.colorScheme.primary, fontSize = 30.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+private fun ActionButton(label: String, icon: ImageVector, enabled: Boolean, primary: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    val colors = if (primary) ButtonDefaults.buttonColors() else ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)
+    Button(onClick, modifier.heightIn(min = 68.dp), enabled = enabled, shape = RoundedCornerShape(18.dp), colors = colors,
+        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 10.dp),
+        border = if (primary || !enabled) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+            Text(label, fontSize = 13.sp, textAlign = TextAlign.Center)
+        }
+    }
+}
+
+@Composable
+internal fun ResultPanel(win: Boolean, remaining: Int, daily: Boolean) {
+    Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth(), border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))) {
+        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(if (win) "Beautifully solved" else if (remaining <= 3) "So close" else "No moves remaining",
+                color = MaterialTheme.colorScheme.primary, fontSize = 21.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+            Text(if (win) if (daily) "One stone remains. Daily complete." else "One stone remains. A perfect finish."
+                else "$remaining stones remain. Undo a move or try again.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, fontSize = 13.sp,
+                modifier = Modifier.padding(top = 6.dp))
+        }
+    }
+}
+
+@Composable
+internal fun SettingsDialog(theme: GameTheme, soundOn: Boolean, onSelect: (ThemeId) -> Unit, onSound: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(onDismissRequest = onDismiss, title = { Text("Make it yours") },
         confirmButton = { TextButton(onClick = onDismiss) { Text("Done") } },
-        title = { Text("Settings") },
         text = {
-            Column {
-                Text("Theme", fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(8.dp))
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    GameThemes.all.forEach { t ->
-                        ModeChip(t.label, t.id == selected, theme) { onSelectTheme(t.id) }
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Choose your board", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                GameThemes.all.forEach { choice ->
+                    Surface(shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.dp, if (choice.id == theme.id) theme.accent else theme.secondaryText.copy(alpha = 0.2f)),
+                        modifier = Modifier.fillMaxWidth().selectable(choice.id == theme.id, role = Role.RadioButton, onClick = { onSelect(choice.id) })) {
+                        Row(Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            BoardView(GameState.newGame(), choice, null, emptySet(), null, 0f, null, 1f, {}, Modifier.size(64.dp), interactive = false)
+                            Text(choice.label, modifier = Modifier.weight(1f).padding(horizontal = 12.dp), fontWeight = FontWeight.Medium)
+                            if (choice.id == theme.id) Icon(Icons.Outlined.Check, "Selected", tint = theme.accent)
+                        }
                     }
                 }
-                Spacer(Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Sound")
-                    Text(
-                        text = if (soundOn) "On" else "Off",
-                        color = theme.accent,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .clickable(onClick = onToggleSound)
-                            .padding(horizontal = 16.dp, vertical = 6.dp),
-                    )
+                    Switch(checked = soundOn, onCheckedChange = { onSound() })
                 }
             }
-        },
-    )
+        })
 }
 
 @Composable
-private fun ModeChip(label: String, selected: Boolean, theme: GameTheme, onClick: () -> Unit) {
-    val bg = if (selected) theme.accent else Color(0x33000000)
-    val fg = if (selected) theme.bgBottom else theme.secondaryText
-    Text(
-        text = label,
-        color = fg,
-        fontSize = 14.sp,
-        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-        modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(bg)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 8.dp),
-    )
-}
-
-@Composable
-private fun StatChip(label: String, value: String, theme: GameTheme) {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color(0x33000000))
-            .padding(horizontal = 18.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(label, color = theme.secondaryText, fontSize = 14.sp)
-        Spacer(Modifier.width(8.dp))
-        Text(value, color = theme.accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-private fun GameOverBanner(win: Boolean, remaining: Int, daily: Boolean, theme: GameTheme) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(theme.bannerBg)
-            .padding(horizontal = 28.dp, vertical = 22.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = when {
-                    win && daily -> "Daily solved!"
-                    win -> "Perfect!"
-                    remaining <= 3 -> "So close!"
-                    else -> "No moves left"
-                },
-                color = theme.accent,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = if (win) "You cleared the board." else "$remaining stones remain.",
-                color = theme.secondaryText,
-                fontSize = 15.sp,
-                modifier = Modifier.padding(top = 6.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun StatsDialog(
-    stats: GameStats,
-    daily: DailyState,
-    adsRemoved: Boolean,
-    onRestorePurchases: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
+internal fun StatsDialog(stats: GameStats, daily: DailyState, adsRemoved: Boolean, onRestore: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(onDismissRequest = onDismiss, title = { Text("Your quiet progress") },
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
-        dismissButton = {
-            if (!adsRemoved) TextButton(onClick = onRestorePurchases) { Text("Restore") }
-        },
-        title = { Text("Your stats") },
+        dismissButton = { if (!adsRemoved) TextButton(onClick = onRestore) { Text("Restore purchases") } },
         text = {
-            Column {
-                StatRow("Games played", stats.gamesPlayed.toString())
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (!stats.hasHistory) Text("Your first finish starts the story. Play a board to see your progress here.")
+                Metric("WIN RATE", if (stats.hasHistory) "${stats.winRatePercent}%" else "—")
                 StatRow("Games won", stats.gamesWon.toString())
-                StatRow("Win rate", "${stats.winRatePercent}%")
+                StatRow("Games played", stats.gamesPlayed.toString())
                 StatRow("Best result", if (stats.hasHistory) "${stats.bestRemaining} left" else "—")
+                HorizontalDivider()
                 StatRow("Current streak", stats.currentStreak.toString())
                 StatRow("Best streak", stats.bestStreak.toString())
                 StatRow("Daily streak", daily.streak.toString())
                 StatRow("Best daily streak", daily.bestStreak.toString())
-                StatRow("Ads", if (adsRemoved) "Removed ✓" else "On")
+                StatRow("Ads", if (adsRemoved) "Removed" else "On")
             }
-        },
-    )
+        })
 }
 
 @Composable
 private fun StatRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(label)
-        Text(value, fontWeight = FontWeight.Bold)
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(label, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, fontWeight = FontWeight.SemiBold)
     }
+}
+
+@Composable
+internal fun HintDialog(ready: Boolean, loading: Boolean, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    AlertDialog(onDismissRequest = onDismiss, icon = { Icon(Icons.Outlined.Lightbulb, null) },
+        title = { Text("A little nudge") },
+        text = { Text(when {
+            ready -> "Watch a short ad to reveal one legal move."
+            loading -> "An ad is still loading. You can get a free hint now."
+            else -> "No ad is available. This hint is on us."
+        }) },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(if (ready) "Watch ad for hint" else "Get free hint") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Keep thinking") } })
 }

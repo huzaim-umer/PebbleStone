@@ -3,7 +3,7 @@ package com.spore.gemleap.model
 import androidx.compose.ui.graphics.Color
 
 /** Selectable visual themes. */
-enum class ThemeId { CLASSIC, LAMPLIGHT, VICTORIAN }
+enum class ThemeId { CLASSIC, LAMPLIGHT, VICTORIAN, ATELIER }
 
 /**
  * A full visual theme: screen colours, board/hole colours, accent, and the
@@ -129,9 +129,26 @@ object GameThemes {
         gems = VICTORIAN_GEMS,
     )
 
-    val all = listOf(CLASSIC, LAMPLIGHT, VICTORIAN)
+    val ATELIER = GameTheme(
+        id = ThemeId.ATELIER, label = "Jewel Atelier",
+        bgTop = Color(0xFF123B3A), bgBottom = Color(0xFF061C20),
+        accent = Color(0xFFEACB88), secondaryText = Color(0xFFB8CEC7),
+        bannerBg = Color(0xFF123B3A),
+        discOuter = Color(0xFFAD8052), discMid = Color(0xFF523527), discInner = Color(0xFF201811),
+        surfaceOuter = Color(0xFF76503B), surfaceInner = Color(0xFF38271E),
+        holeCenter = Color(0xFF100F0D), holeMid = Color(0xFF241D16), holeRim = Color(0xFF997453),
+        hintRing = Color(0xFF8BF0C4),
+        gems = listOf(
+            Gem("Malachite", Color(0xFF20B984)), Gem("Lapis", Color(0xFF387CE0)),
+            Gem("Turquoise", Color(0xFF42C6C5)), Gem("Amber", Color(0xFFE1A244)),
+            Gem("Amethyst", Color(0xFF9673D6)), Gem("Pearl", Color(0xFFE4E2CB), 0.7f),
+        ),
+    )
+
+    val all = listOf(ATELIER, CLASSIC, LAMPLIGHT, VICTORIAN)
 
     fun of(id: ThemeId): GameTheme = when (id) {
+        ThemeId.ATELIER -> ATELIER
         ThemeId.LAMPLIGHT -> LAMPLIGHT
         ThemeId.VICTORIAN -> VICTORIAN
         ThemeId.CLASSIC -> CLASSIC
