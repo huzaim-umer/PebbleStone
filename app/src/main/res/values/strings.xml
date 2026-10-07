@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">GemLeap</string>
+
+    <!--
+      Google Play Games Services. Create the PGS project + a "Total Wins" leaderboard
+      (larger is better) in Play Console, then paste the ids here. While either is
+      blank the leaderboard feature stays hidden/disabled.
+    -->
+    <string name="pgs_app_id" translatable="false">860800410846</string>
+    <string name="leaderboard_total_wins" translatable="false">CgkI3snP3YYZEAIQAg</string>
 </resources>

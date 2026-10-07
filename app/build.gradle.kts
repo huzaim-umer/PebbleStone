@@ -21,8 +21,8 @@ android {
         applicationId = "com.spore.gemleap"
         minSdk = 26
         targetSdk = 36
-        versionCode = 7
-        versionName = "1.4"
+        versionCode = 8
+        versionName = "1.5"
     }
 
     signingConfigs {
@@ -82,6 +82,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-ads:23.6.0")   // AdMob (interstitial)
     implementation("com.google.android.ump:user-messaging-platform:3.1.0") // GDPR consent
     implementation("com.android.billingclient:billing:8.0.0")           // Play Billing (Remove Ads)
+
+    // Global leaderboard (Play Games Services)
+    implementation("com.google.android.gms:play-services-games-v2:22.1.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

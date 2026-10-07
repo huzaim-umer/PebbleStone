@@ -15,7 +15,11 @@ import kotlin.random.Random
  * history, hint, active game mode, move animation, and persisted stats. All
  * rules live in [GameState]; this class coordinates state and persistence.
  */
-class PebbleController(private val stats: StatsRepository) {
+class PebbleController(
+    private val stats: StatsRepository,
+    /** Called with the new lifetime win total after each win (e.g. to submit to the leaderboard). */
+    private val onWinsChanged: (totalWins: Int) -> Unit = {},
+) {
     var state by mutableStateOf(GameState.newGame())
         private set
 
@@ -124,6 +128,7 @@ class PebbleController(private val stats: StatsRepository) {
         if (recordedThisGame || !state.isGameOver) return
         recordedThisGame = true
         lifetimeStats = stats.record(won = state.isWin, remaining = state.remaining)
+        if (state.isWin) onWinsChanged(lifetimeStats.gamesWon)
         if (mode == GameMode.DAILY && state.isWin) {
             dailyStats = stats.recordDailyWin(dailyEpochDay)
         }

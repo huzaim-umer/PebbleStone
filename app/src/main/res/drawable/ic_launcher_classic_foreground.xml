@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- five Classic Wood marbles in a plus arrangement, each with a small highlight -->
+    <path android:fillColor="#3FC0C4" android:pathData="M54,32m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.55" android:pathData="M50,28m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
+    <path android:fillColor="#9A6B2F" android:pathData="M32,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.55" android:pathData="M28,50m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
+    <path android:fillColor="#8E5AB8" android:pathData="M54,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.55" android:pathData="M50,50m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
+    <path android:fillColor="#B23A2E" android:pathData="M76,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.55" android:pathData="M72,50m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
+    <path android:fillColor="#1F7A4D" android:pathData="M54,76m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.55" android:pathData="M50,72m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
+</vector>

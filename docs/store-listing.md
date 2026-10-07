@@ -58,8 +58,12 @@ Can you finish with a single gem?
   identifiers may be collected by the ads SDK.
 - **Purchases:** The app supports a one-time in-app purchase (Remove Ads).
 - **Data collected/shared:** AdMob may collect the advertising ID and approximate
-  usage. The game itself stores stats **only on the device** (SharedPreferences),
-  nothing is uploaded by the app.
+  usage. The game itself stores stats **only on the device** (SharedPreferences).
+- **Play Games leaderboard (v1.5+):** if the player signs in to Google Play Games,
+  their total win count and Play Games profile (name/avatar, player ID) are
+  submitted to Google Play Games Services. Declare **Game interactions / app
+  activity** and **User IDs** as collected; optional (sign-in is not required);
+  not used for ads.
 - You must link a **privacy policy** URL (required because the app shows ads and
   uses an advertising ID). A simple hosted policy page is enough — I can draft one.
 

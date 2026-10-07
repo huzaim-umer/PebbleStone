@@ -89,10 +89,20 @@ class StatsRepository(context: Context) {
         prefs.edit().putBoolean(KEY_ADS_REMOVED, removed).apply()
     }
 
-    /** Selected visual theme, stored by [ThemeId] name (defaults to Lamplight). */
+    /** Games started since the last interstitial; persisted so short sessions still count. */
+    fun loadGamesSinceAd(): Int = prefs.getInt(KEY_GAMES_SINCE_AD, 0)
+
+    fun saveGamesSinceAd(count: Int) {
+        prefs.edit().putInt(KEY_GAMES_SINCE_AD, count).apply()
+    }
+
+    /**
+     * Selected visual theme, stored by [ThemeId] name. Defaults to Jewel Atelier;
+     * themes that no longer exist (Lamplight, Victorian) fall back to it too.
+     */
     fun loadThemeId(): ThemeId =
-        runCatching { ThemeId.valueOf(prefs.getString(KEY_THEME, ThemeId.LAMPLIGHT.name)!!) }
-            .getOrDefault(ThemeId.LAMPLIGHT)
+        runCatching { ThemeId.valueOf(prefs.getString(KEY_THEME, ThemeId.JEWEL.name)!!) }
+            .getOrDefault(ThemeId.JEWEL)
 
     fun saveThemeId(id: ThemeId) {
         prefs.edit().putString(KEY_THEME, id.name).apply()
@@ -110,5 +120,6 @@ class StatsRepository(context: Context) {
         const val KEY_SOUND_ON = "sound_on"
         const val KEY_ADS_REMOVED = "ads_removed"
         const val KEY_THEME = "theme_id"
+        const val KEY_GAMES_SINCE_AD = "games_since_ad"
     }
 }

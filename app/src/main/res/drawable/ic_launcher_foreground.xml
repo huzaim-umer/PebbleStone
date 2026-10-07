@@ -4,10 +4,20 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- five Lamplight marbles in a plus arrangement -->
-    <path android:fillColor="#E6B84C" android:pathData="M54,32m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
-    <path android:fillColor="#2E8B8B" android:pathData="M32,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
-    <path android:fillColor="#D8D2C4" android:pathData="M54,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
-    <path android:fillColor="#3E5C86" android:pathData="M76,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
-    <path android:fillColor="#B5687A" android:pathData="M54,76m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <!-- five Jewel Atelier gems in a plus arrangement, each with a small highlight -->
+    <path android:fillColor="#22D3EE" android:fillAlpha="0.25" android:pathData="M54,32m-13.5,0a13.5,13.5 0,1 0,27.0 0a13.5,13.5 0,1 0,-27.0 0z" />
+    <path android:fillColor="#22D3EE" android:pathData="M54,32m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.6" android:pathData="M50,28m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
+    <path android:fillColor="#A855F7" android:fillAlpha="0.25" android:pathData="M32,54m-13.5,0a13.5,13.5 0,1 0,27.0 0a13.5,13.5 0,1 0,-27.0 0z" />
+    <path android:fillColor="#A855F7" android:pathData="M32,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.6" android:pathData="M28,50m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
+    <path android:fillColor="#F1F5F9" android:fillAlpha="0.25" android:pathData="M54,54m-13.5,0a13.5,13.5 0,1 0,27.0 0a13.5,13.5 0,1 0,-27.0 0z" />
+    <path android:fillColor="#F1F5F9" android:pathData="M54,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.6" android:pathData="M50,50m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
+    <path android:fillColor="#3B82F6" android:fillAlpha="0.25" android:pathData="M76,54m-13.5,0a13.5,13.5 0,1 0,27.0 0a13.5,13.5 0,1 0,-27.0 0z" />
+    <path android:fillColor="#3B82F6" android:pathData="M76,54m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.6" android:pathData="M72,50m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
+    <path android:fillColor="#10B981" android:fillAlpha="0.25" android:pathData="M54,76m-13.5,0a13.5,13.5 0,1 0,27.0 0a13.5,13.5 0,1 0,-27.0 0z" />
+    <path android:fillColor="#10B981" android:pathData="M54,76m-11,0a11,11 0,1 0,22 0a11,11 0,1 0,-22 0z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.6" android:pathData="M50,72m-3.2,0a3.2,3.2 0,1 0,6.4 0a3.2,3.2 0,1 0,-6.4 0z" />
 </vector>

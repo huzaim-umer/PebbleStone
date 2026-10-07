@@ -2,15 +2,20 @@ package com.spore.gemleap.model
 
 import androidx.compose.ui.graphics.Color
 
+/** Surface pattern painted on a polished stone, so gems read as real minerals. */
+enum class GemTexture { NONE, SPECKLE, VEINS, BANDS, CLOUDY }
+
 /**
  * A stylised marble. [base] is the mid tone; the renderer derives a lighter
  * highlight and darker rim from it to fake a polished sphere. [sheen] scales the
- * specular highlight (glassy stones get a brighter dot than matte ones).
+ * specular highlight (glassy stones get a brighter dot than matte ones), and
+ * [texture] adds mineral detail such as veins, bands or speckles.
  */
 data class Gem(
     val name: String,
     val base: Color,
     val sheen: Float = 1f,
+    val texture: GemTexture = GemTexture.NONE,
 )
 
 /** Marble-slot bookkeeping. Actual colours live per-theme in [GameThemes]. */

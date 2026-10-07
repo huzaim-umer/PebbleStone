@@ -8,8 +8,8 @@ information. By using GemLeap you agree to this policy.
 ## Information the app collects directly
 GemLeap does **not** require an account and does **not** collect personal
 information that identifies you. Your game progress and statistics (games
-played, win streaks, settings) are stored **only on your device** and are not
-transmitted to us.
+played, win streaks, settings) are stored **only on your device**. The one
+exception is the optional global leaderboard described below.
 
 ## Information collected by third parties
 GemLeap uses the following third-party services, which may collect information
@@ -22,6 +22,11 @@ as described in their own privacy policies:
 - **Google Play Billing** (in-app purchases). If you buy "Remove Ads", the
   transaction is processed by Google Play. We do not receive or store your
   payment details.
+- **Google Play Games Services** (global leaderboard). If you sign in to Google
+  Play Games, your total number of wins is submitted to Google and shown on the
+  leaderboard together with your Play Games profile name and avatar. Signing in
+  is optional and the game works fully without it. See
+  https://policies.google.com/privacy
 
 For users in regions requiring it (e.g. the EEA/UK), the app presents a consent
 prompt (via Google's User Messaging Platform) before requesting personalised ads.

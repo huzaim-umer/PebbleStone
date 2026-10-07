@@ -19,7 +19,7 @@ object AdIds {
     const val USE_TEST = false
 
     private const val TEST_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712"
-    private const val REAL_INTERSTITIAL = "ca-app-pub-4559645833837224/4920816424"
+    private const val REAL_INTERSTITIAL = "ca-app-pub-4559645833837224/9207153559"
 
     private const val TEST_REWARDED = "ca-app-pub-3940256099942544/5224354917"
     private const val REAL_REWARDED = "ca-app-pub-4559645833837224/2468163428"

@@ -21,17 +21,64 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-4559645833837224~2513576719" />
 
+        <!-- Google Play Games Services app id (see res/values/strings.xml). -->
+        <meta-data
+            android:name="com.google.android.gms.games.APP_ID"
+            android:value="@string/pgs_app_id" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.PebbleStone">
+            android:theme="@style/Theme.PebbleStone" />
+
+        <!--
+          One launcher entry per theme. Exactly one is enabled at a time and
+          AppIconManager swaps them when the theme changes, which changes the home
+          screen icon. Jewel Atelier is the default theme, so it starts enabled.
+        -->
+        <activity-alias
+            android:name=".IconJewel"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".IconClassic"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_classic"
+            android:roundIcon="@mipmap/ic_launcher_classic"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".IconZen"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_zen"
+            android:roundIcon="@mipmap/ic_launcher_zen"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
     </application>
 
 </manifest>
