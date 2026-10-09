@@ -1,6 +1,8 @@
 package com.spore.gemleap.monetization
 
 import android.app.Activity
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -18,6 +20,8 @@ class RewardedAdManager(private val activity: Activity) {
     private var ad: RewardedAd? = null
     private var loading = false
     private var adsEnabled = false
+    private var loadFailures = 0
+    private val handler = Handler(Looper.getMainLooper())
 
     private val unitId: String? get() = AdIds.rewarded
 
@@ -79,5 +83,7 @@ class RewardedAdManager(private val activity: Activity) {
 
     private companion object {
         const val TAG = "RewardedAd"
+        const val MAX_LOAD_RETRIES = 5
+        const val RETRY_DELAY_MS = 30_000L
     }
 }

@@ -89,6 +89,13 @@ class StatsRepository(context: Context) {
         prefs.edit().putBoolean(KEY_ADS_REMOVED, removed).apply()
     }
 
+    /** Whether the player has already seen the first-launch "How to play" screen. */
+    fun hasSeenHowTo(): Boolean = prefs.getBoolean(KEY_HOWTO_SEEN, false)
+
+    fun setHowToSeen() {
+        prefs.edit().putBoolean(KEY_HOWTO_SEEN, true).apply()
+    }
+
     /** Games started since the last interstitial; persisted so short sessions still count. */
     fun loadGamesSinceAd(): Int = prefs.getInt(KEY_GAMES_SINCE_AD, 0)
 
@@ -97,12 +104,12 @@ class StatsRepository(context: Context) {
     }
 
     /**
-     * Selected visual theme, stored by [ThemeId] name. Defaults to Jewel Atelier;
+     * Selected visual theme, stored by [ThemeId] name. Defaults to Classic Wood;
      * themes that no longer exist (Lamplight, Victorian) fall back to it too.
      */
     fun loadThemeId(): ThemeId =
-        runCatching { ThemeId.valueOf(prefs.getString(KEY_THEME, ThemeId.JEWEL.name)!!) }
-            .getOrDefault(ThemeId.JEWEL)
+        runCatching { ThemeId.valueOf(prefs.getString(KEY_THEME, ThemeId.CLASSIC.name)!!) }
+            .getOrDefault(ThemeId.CLASSIC)
 
     fun saveThemeId(id: ThemeId) {
         prefs.edit().putString(KEY_THEME, id.name).apply()
@@ -121,5 +128,6 @@ class StatsRepository(context: Context) {
         const val KEY_ADS_REMOVED = "ads_removed"
         const val KEY_THEME = "theme_id"
         const val KEY_GAMES_SINCE_AD = "games_since_ad"
+        const val KEY_HOWTO_SEEN = "howto_seen"
     }
 }

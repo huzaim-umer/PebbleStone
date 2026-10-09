@@ -55,8 +55,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -101,6 +104,12 @@ fun GameScreen(
     onStatsOpened: () -> Unit = {},
     onWinsChanged: (totalWins: Int) -> Unit = {},
     onThemeChanged: (GameTheme) -> Unit = {},
+    updateAvailable: Boolean = false,
+    updateReady: Boolean = false,
+    onUpdate: () -> Unit = {},
+    onUpdateLater: () -> Unit = {},
+    onInstallUpdate: () -> Unit = {},
+    onInstallLater: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val repo = remember { StatsRepository(context) }
@@ -113,6 +122,8 @@ fun GameScreen(
     var showStats by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showHintPrompt by remember { mutableStateOf(false) }
+    // New players see the rules once, automatically; afterwards it's one tap away.
+    var showHowTo by remember { mutableStateOf(!repo.hasSeenHowTo()) }
     var soundOn by remember { mutableStateOf(repo.loadSoundOn()) }
     var themeId by remember { mutableStateOf(repo.loadThemeId()) }
     val theme = GameThemes.of(themeId)
@@ -285,7 +296,18 @@ fun GameScreen(
                 color = theme.secondaryText,
                 fontSize = 14.sp,
                 letterSpacing = 0.5.sp,
-                modifier = Modifier.padding(vertical = 8.dp),
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            Text(
+                "How to play",
+                color = theme.link,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { showHowTo = true }
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
             )
 
             Row(
@@ -315,6 +337,26 @@ fun GameScreen(
                 }
             }
         }
+    }
+
+    if (showHowTo) {
+        HowToPlayDialog(
+            theme = theme,
+            onDismiss = {
+                showHowTo = false
+                repo.setHowToSeen()
+            },
+        )
+    }
+
+    // A new Play version, offered once the first-run guide is out of the way.
+    if (!showHowTo && (updateAvailable || updateReady)) {
+        UpdateDialog(
+            theme = theme,
+            ready = updateReady,
+            onConfirm = if (updateReady) onInstallUpdate else onUpdate,
+            onLater = if (updateReady) onInstallLater else onUpdateLater,
+        )
     }
 
     if (showHintPrompt) {
@@ -357,6 +399,10 @@ fun GameScreen(
                 repo.saveThemeId(it)
             },
             onToggleSound = toggleSound,
+            onHowToPlay = {
+                showSettings = false
+                showHowTo = true
+            },
             onDismiss = { showSettings = false },
         )
     }
@@ -687,6 +733,168 @@ private fun HintDialog(theme: GameTheme, icons: GemIcons, onWatch: () -> Unit, o
     }
 }
 
+/** Prompt for a newer Play version; the same card says "ready" once the download finished. */
+@Composable
+private fun UpdateDialog(theme: GameTheme, ready: Boolean, onConfirm: () -> Unit, onLater: () -> Unit) {
+    GemDialog(theme, onLater) {
+        Text(
+            if (ready) "Update ready" else "Update available",
+            color = theme.textPrimary,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            if (ready) {
+                "The new version has downloaded.\nRestart to start playing it."
+            } else {
+                "A new version of GemLeap is ready\nwith fixes and improvements."
+            },
+            color = theme.secondaryText,
+            fontSize = 17.sp,
+            lineHeight = 25.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(26.dp))
+        CtaButton(if (ready) "Restart now" else "Update now", theme, onConfirm)
+        Spacer(Modifier.height(12.dp))
+        DialogLink("Later", theme.linkSoft, Modifier.align(Alignment.CenterHorizontally), bold = false, onClick = onLater)
+    }
+}
+
+/** "How to play": the rules in four short steps, a jump diagram, and a few tips. */
+@Composable
+private fun HowToPlayDialog(theme: GameTheme, onDismiss: () -> Unit) {
+    GemDialog(theme, onDismiss) {
+        Text("How to play", color = theme.textPrimary, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
+        Text(
+            "Clear the board. Leave just one stone.",
+            color = theme.mutedText,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        Spacer(Modifier.height(16.dp))
+        JumpDiagram(theme)
+        Spacer(Modifier.height(18.dp))
+        HowToStep(1, "Tap a stone to select it.", theme)
+        HowToStep(2, "Jump it over a neighbouring stone, up, down, left or right, into an empty spot. Glowing spots show where it can land.", theme)
+        HowToStep(3, "The stone you jumped over is removed.", theme)
+        HowToStep(4, "Keep going until one stone is left. No jumps left? Try Undo, or start a New game.", theme)
+        Spacer(Modifier.height(10.dp))
+        Box(Modifier.fillMaxWidth().height(1.dp).background(theme.rowBorder))
+        Spacer(Modifier.height(12.dp))
+        HowToTip("Hint", "shows one legal move.", theme)
+        HowToTip("Undo", "takes back your last jump.", theme)
+        HowToTip("Daily", "gives everyone the same board each day.", theme)
+        HowToTip("Leaderboard", "ranks players by total wins (sign in with Google).", theme)
+        Spacer(Modifier.height(20.dp))
+        CtaButton("Got it", theme, onDismiss)
+    }
+}
+
+@Composable
+private fun HowToStep(number: Int, text: String, theme: GameTheme) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.Top) {
+        Box(
+            modifier = Modifier
+                .size(26.dp)
+                .clip(CircleShape)
+                .background(Brush.linearGradient(listOf(theme.pillStart, theme.pillEnd))),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(number.toString(), color = theme.pillText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.width(12.dp))
+        Text(text, color = theme.secondaryText, fontSize = 15.sp, lineHeight = 21.sp, modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun HowToTip(name: String, text: String, theme: GameTheme) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
+        Text(name, color = theme.link, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(" $text", color = theme.secondaryText, fontSize = 14.sp, lineHeight = 20.sp, modifier = Modifier.weight(1f))
+    }
+}
+
+/** Before/after picture of one jump: the left stone hops over its neighbour into the empty spot. */
+@Composable
+private fun JumpDiagram(theme: GameTheme) {
+    val jumper = theme.gems[0].base
+    val jumped = theme.gems[(2) % theme.gems.size].base
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Canvas(Modifier.fillMaxWidth().height(86.dp)) {
+            val r = size.height * 0.17f
+            val step = r * 2.8f
+            val cy = size.height * 0.62f
+            val groupW = step * 2f
+            val leftX = (size.width / 2f - groupW) / 2f
+            val rightX = size.width / 2f + (size.width / 2f - groupW) / 2f
+
+            fun socket(c: Offset) {
+                drawCircle(theme.holeCenter, radius = r * 0.95f, center = c)
+                drawCircle(theme.holeRim.copy(alpha = 0.7f), radius = r * 0.95f, center = c, style = Stroke(width = r * 0.12f))
+            }
+            fun gem(c: Offset, color: Color) {
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        0f to color.lighten(0.35f), 0.5f to color, 1f to color.darken(0.45f),
+                        center = c - Offset(r * 0.35f, r * 0.4f), radius = r * 1.5f,
+                    ),
+                    radius = r,
+                    center = c,
+                )
+                drawCircle(Color.White.copy(alpha = 0.85f), radius = r * 0.16f, center = c - Offset(r * 0.38f, r * 0.42f))
+            }
+
+            // Before: A and B on the left, empty spot on the right.
+            val b0 = Offset(leftX, cy)
+            val b1 = Offset(leftX + step, cy)
+            val b2 = Offset(leftX + step * 2f, cy)
+            socket(b2)
+            gem(b1, jumped)
+            gem(b0, jumper)
+            drawCircle(theme.selectRing, radius = r * 1.3f, center = b0, style = Stroke(width = r * 0.12f))
+            // Dashed hop arc from A over B to the empty spot.
+            val arc = Path().apply {
+                moveTo(b0.x, b0.y - r * 1.3f)
+                quadraticTo(b1.x, cy - r * 4.0f, b2.x, b2.y - r * 1.3f)
+            }
+            drawPath(
+                arc, theme.selectRing,
+                style = Stroke(width = r * 0.14f, cap = StrokeCap.Round, pathEffect = PathEffect.dashPathEffect(floatArrayOf(r * 0.4f, r * 0.3f))),
+            )
+
+            // Arrow between the two pictures.
+            val ax = size.width / 2f
+            val arrow = Path().apply {
+                moveTo(ax - r * 0.7f, cy)
+                lineTo(ax + r * 0.7f, cy)
+                moveTo(ax + r * 0.1f, cy - r * 0.6f)
+                lineTo(ax + r * 0.7f, cy)
+                lineTo(ax + r * 0.1f, cy + r * 0.6f)
+            }
+            drawPath(arrow, theme.accent2, style = Stroke(width = r * 0.18f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+
+            // After: A has landed in the far spot, B is gone.
+            val a0 = Offset(rightX, cy)
+            val a1 = Offset(rightX + step, cy)
+            val a2 = Offset(rightX + step * 2f, cy)
+            socket(a0)
+            socket(a1)
+            gem(a2, jumper)
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text("Jump over a stone", color = theme.labelText, fontSize = 12.sp, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
+            Text("It's removed", color = theme.labelText, fontSize = 12.sp, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
+        }
+    }
+}
+
 /** "Make it yours": board theme picker plus the sound switch. */
 @Composable
 private fun SettingsDialog(
@@ -695,6 +903,7 @@ private fun SettingsDialog(
     soundOn: Boolean,
     onSelectTheme: (ThemeId) -> Unit,
     onToggleSound: () -> Unit,
+    onHowToPlay: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     GemDialog(theme, onDismiss) {
@@ -721,7 +930,11 @@ private fun SettingsDialog(
             GemSwitch(soundOn, theme, onToggleSound)
         }
         Spacer(Modifier.height(18.dp))
-        DialogLink("Done", theme.link, Modifier.align(Alignment.End), onClick = onDismiss)
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            DialogLink("How to play", theme.linkSoft, bold = false, onClick = onHowToPlay)
+            Spacer(Modifier.weight(1f))
+            DialogLink("Done", theme.link, onClick = onDismiss)
+        }
     }
 }
 

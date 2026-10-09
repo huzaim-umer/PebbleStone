@@ -107,7 +107,7 @@ class InterstitialAdManager(
 
     private companion object {
         const val TAG = "InterstitialAd"
-        const val MAX_LOAD_RETRIES = 3
-        const val RETRY_DELAY_MS = 20_000L
+        const val MAX_LOAD_RETRIES = 5
+        const val RETRY_DELAY_MS = 30_000L
     }
 }

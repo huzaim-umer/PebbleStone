@@ -23,6 +23,7 @@ import com.spore.gemleap.monetization.RewardedAdManager
 import com.spore.gemleap.social.LeaderboardManager
 import com.spore.gemleap.ui.GameScreen
 import com.spore.gemleap.ui.theme.PebbleStoneTheme
+import com.spore.gemleap.update.UpdateManager
 
 class MainActivity : ComponentActivity() {
     private lateinit var billing: BillingManager
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var consent: ConsentManager
     private lateinit var leaderboard: LeaderboardManager
     private lateinit var leaderboardLauncher: ActivityResultLauncher<Intent>
+    private lateinit var updates: UpdateManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -48,6 +50,7 @@ class MainActivity : ComponentActivity() {
         }
         leaderboardLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
+        updates = UpdateManager(this)
         // Gather GDPR consent, then initialise ads and preload interstitial + rewarded.
         consent.gatherConsent(this) {
             MobileAds.initialize(this) { }
@@ -74,6 +77,12 @@ class MainActivity : ComponentActivity() {
                     onStatsOpened = { leaderboard.refreshRank() },
                     onWinsChanged = { leaderboard.submitWins(it) },
                     onThemeChanged = ::applySystemBars,
+                    updateAvailable = updates.updateAvailable,
+                    updateReady = updates.updateReady,
+                    onUpdate = updates::startUpdate,
+                    onUpdateLater = updates::later,
+                    onInstallUpdate = updates::installNow,
+                    onInstallLater = updates::installLater,
                 )
             }
         }
@@ -92,6 +101,10 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         leaderboard.onResume()
+        // Picks up purchases that completed while away (e.g. a pending payment that cleared).
+        billing.queryPurchases(userInitiated = false)
+        // Offers a newer Play version (and finishes one that downloaded while away).
+        updates.check()
     }
 
     override fun onStop() {
@@ -102,6 +115,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        updates.release()
         billing.endConnection()
     }
 }

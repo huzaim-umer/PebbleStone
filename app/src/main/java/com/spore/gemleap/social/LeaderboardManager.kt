@@ -94,23 +94,25 @@ class LeaderboardManager(private val activity: Activity) {
     fun refreshRank() {
         if (!available || !signedIn) return
         rankLoading = true
-        PlayGames.getLeaderboardsClient(activity)
-            .loadLeaderboardMetadata(LeaderboardIds.totalWins(activity), true)
-            .addOnCompleteListener { task ->
-                rankLoading = false
-                val board = if (task.isSuccessful) task.result?.get() else null
-                if (board == null) {
-                    Log.w(TAG, "Could not load rank: ${task.exception?.message}")
-                    return@addOnCompleteListener
+        val client = PlayGames.getLeaderboardsClient(activity)
+        val id = LeaderboardIds.totalWins(activity)
+        // The player's own score entry carries the rank; the metadata adds the number of players.
+        client.loadCurrentPlayerLeaderboardScore(id, LeaderboardVariant.TIME_SPAN_ALL_TIME, LeaderboardVariant.COLLECTION_PUBLIC)
+            .addOnCompleteListener { scoreTask ->
+                val playerRank = if (scoreTask.isSuccessful) scoreTask.result?.get()?.rank?.takeIf { it > 0 } else null
+                if (!scoreTask.isSuccessful) Log.w(TAG, "Could not load rank: ${scoreTask.exception?.message}")
+                client.loadLeaderboardMetadata(id, true).addOnCompleteListener { metaTask ->
+                    rankLoading = false
+                    val board = if (metaTask.isSuccessful) metaTask.result?.get() else null
+                    val variant = board?.variants?.firstOrNull {
+                        it.timeSpan == LeaderboardVariant.TIME_SPAN_ALL_TIME &&
+                            it.collection == LeaderboardVariant.COLLECTION_PUBLIC
+                    }
+                    rank = PlayerRank(
+                        rank = playerRank ?: variant?.takeIf { it.hasPlayerInfo() }?.playerRank?.takeIf { it > 0 },
+                        total = variant?.numScores?.takeIf { it > 0 },
+                    )
                 }
-                val variant = board.variants.firstOrNull {
-                    it.timeSpan == LeaderboardVariant.TIME_SPAN_ALL_TIME &&
-                        it.collection == LeaderboardVariant.COLLECTION_PUBLIC
-                }
-                rank = PlayerRank(
-                    rank = variant?.takeIf { it.hasPlayerInfo() }?.playerRank?.takeIf { it > 0 },
-                    total = variant?.numScores?.takeIf { it > 0 },
-                )
             }
     }
 

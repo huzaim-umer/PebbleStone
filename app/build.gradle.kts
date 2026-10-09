@@ -21,8 +21,8 @@ android {
         applicationId = "com.spore.gemleap"
         minSdk = 26
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.5"
+        versionCode = 9
+        versionName = "1.6"
     }
 
     signingConfigs {
@@ -79,9 +79,14 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     // Monetization
-    implementation("com.google.android.gms:play-services-ads:23.6.0")   // AdMob (interstitial)
-    implementation("com.google.android.ump:user-messaging-platform:3.1.0") // GDPR consent
+    implementation("com.google.android.gms:play-services-ads:24.5.0")   // AdMob (interstitial + rewarded)
+    implementation("com.google.android.ump:user-messaging-platform:4.0.0") // GDPR consent
     implementation("com.android.billingclient:billing:8.0.0")           // Play Billing (Remove Ads)
+    implementation("com.google.android.play:app-update:2.1.0")          // In-app "new version" prompt
+
+    // A library on the classpath pulls in an old Fragment; the leaderboard launcher uses the
+    // Activity Result API, which needs Fragment 1.3.0+ (release lint enforces this).
+    implementation("androidx.fragment:fragment:1.8.9")
 
     // Global leaderboard (Play Games Services)
     implementation("com.google.android.gms:play-services-games-v2:22.1.0")
