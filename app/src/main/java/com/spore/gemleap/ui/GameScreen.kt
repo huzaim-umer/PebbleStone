@@ -104,6 +104,8 @@ fun GameScreen(
     onStatsOpened: () -> Unit = {},
     onWinsChanged: (totalWins: Int) -> Unit = {},
     onThemeChanged: (GameTheme) -> Unit = {},
+    privacyOptionsRequired: Boolean = false,
+    onPrivacyOptions: () -> Unit = {},
     updateAvailable: Boolean = false,
     updateReady: Boolean = false,
     onUpdate: () -> Unit = {},
@@ -402,6 +404,11 @@ fun GameScreen(
             onHowToPlay = {
                 showSettings = false
                 showHowTo = true
+            },
+            privacyOptionsRequired = privacyOptionsRequired,
+            onPrivacyOptions = {
+                showSettings = false
+                onPrivacyOptions()
             },
             onDismiss = { showSettings = false },
         )
@@ -904,6 +911,8 @@ private fun SettingsDialog(
     onSelectTheme: (ThemeId) -> Unit,
     onToggleSound: () -> Unit,
     onHowToPlay: () -> Unit,
+    privacyOptionsRequired: Boolean,
+    onPrivacyOptions: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     GemDialog(theme, onDismiss) {
@@ -934,6 +943,9 @@ private fun SettingsDialog(
             DialogLink("How to play", theme.linkSoft, bold = false, onClick = onHowToPlay)
             Spacer(Modifier.weight(1f))
             DialogLink("Done", theme.link, onClick = onDismiss)
+        }
+        if (privacyOptionsRequired) {
+            DialogLink("Privacy settings", theme.linkSoft, bold = false, onClick = onPrivacyOptions)
         }
     }
 }

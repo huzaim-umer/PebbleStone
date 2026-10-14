@@ -77,6 +77,8 @@ class MainActivity : ComponentActivity() {
                     onStatsOpened = { leaderboard.refreshRank() },
                     onWinsChanged = { leaderboard.submitWins(it) },
                     onThemeChanged = ::applySystemBars,
+                    privacyOptionsRequired = consent.privacyOptionsRequired,
+                    onPrivacyOptions = { consent.showPrivacyOptions(this@MainActivity) },
                     updateAvailable = updates.updateAvailable,
                     updateReady = updates.updateReady,
                     onUpdate = updates::startUpdate,
