@@ -62,9 +62,35 @@ class GameState private constructor(
         return GameState(newMarbles, newGems)
     }
 
+    /**
+     * Compact text form for saving: one character per playable hole, row-major —
+     * '.' for an empty hole, otherwise 'a' + the marble's gem slot.
+     */
+    fun encode(): String = buildString(PLAYABLE.size) {
+        for (p in PLAYABLE) {
+            if (p in marbles) append('a' + (gems[p] ?: 0)) else append('.')
+        }
+    }
+
     companion object {
         const val SIZE = 7
         val CENTER = Pos(3, 3)
+
+        /** Inverse of [encode]; null when [text] isn't a valid board (e.g. corrupted prefs). */
+        fun decode(text: String): GameState? {
+            if (text.length != PLAYABLE.size) return null
+            val marbles = HashSet<Pos>()
+            val gems = HashMap<Pos, Int>()
+            for ((i, p) in PLAYABLE.withIndex()) {
+                val ch = text[i]
+                if (ch == '.') continue
+                val slot = ch - 'a'
+                if (slot !in 0 until GemPalette.SLOTS) return null
+                marbles.add(p)
+                gems[p] = slot
+            }
+            return GameState(marbles, gems)
+        }
 
         private val DIRECTIONS = listOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)
 

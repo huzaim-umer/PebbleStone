@@ -74,6 +74,15 @@ class StatsRepository(context: Context) {
         return updated
     }
 
+    // ---- In-progress game ----
+
+    /** The saved game in [SavedGame.encode] form, or null when none was saved. */
+    fun loadGame(): String? = prefs.getString(KEY_SAVED_GAME, null)
+
+    fun saveGame(encoded: String) {
+        prefs.edit().putString(KEY_SAVED_GAME, encoded).apply()
+    }
+
     // ---- Preferences ----
 
     fun loadSoundOn(): Boolean = prefs.getBoolean(KEY_SOUND_ON, true)
@@ -129,5 +138,6 @@ class StatsRepository(context: Context) {
         const val KEY_THEME = "theme_id"
         const val KEY_GAMES_SINCE_AD = "games_since_ad"
         const val KEY_HOWTO_SEEN = "howto_seen"
+        const val KEY_SAVED_GAME = "saved_game"
     }
 }

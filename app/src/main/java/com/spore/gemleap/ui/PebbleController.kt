@@ -3,6 +3,7 @@ package com.spore.gemleap.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.spore.gemleap.data.SavedGame
 import com.spore.gemleap.data.StatsRepository
 import com.spore.gemleap.model.GameState
 import com.spore.gemleap.model.Move
@@ -54,6 +55,23 @@ class PebbleController(
     var dailyEpochDay: Long = 0L
         private set
 
+    init {
+        // Resume an unfinished saved game (so swiping the app away can't re-roll the
+        // board); otherwise deal a random free board rather than the fixed centre-hole
+        // default, which is the easiest start to solve.
+        val saved = stats.loadGame()?.let { SavedGame.decode(it) }
+        if (saved != null && !saved.state.isGameOver &&
+            (saved.mode == GameMode.FREE || saved.dailyEpochDay == todayEpochDay())
+        ) {
+            mode = saved.mode
+            dailyEpochDay = saved.dailyEpochDay
+            history.addAll(saved.history)
+            state = saved.state
+        } else {
+            startFree()
+        }
+    }
+
     val canUndo: Boolean get() = history.isNotEmpty()
 
     val destinations: Set<Pos>
@@ -80,6 +98,7 @@ class PebbleController(
         lastAnim = MoveAnim(++animId, move.from, move.to, move.over, movingGem, jumpedGem)
         moveCount++
         recordIfFinished()
+        persist()
     }
 
     fun showHint() {
@@ -93,6 +112,7 @@ class PebbleController(
             selected = null
             hint = null
             lastAnim = null
+            persist()
         }
     }
 
@@ -122,6 +142,12 @@ class PebbleController(
         hint = null
         lastAnim = null
         recordedThisGame = false
+        persist()
+    }
+
+    /** Saves the board and undo history so the game resumes after the app is killed. */
+    private fun persist() {
+        stats.saveGame(SavedGame(mode, dailyEpochDay, state, history.toList()).encode())
     }
 
     private fun recordIfFinished() {

@@ -91,5 +91,7 @@ dependencies {
     // Global leaderboard (Play Games Services)
     implementation("com.google.android.gms:play-services-games-v2:22.1.0")
 
+    testImplementation("junit:junit:4.13.2")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

@@ -34,7 +34,7 @@ Features:
 - Classic 33-hole board rendered as polished wood with hand-shaded gemstone marbles: malachite, lapis, tiger eye, amethyst, turquoise and more.
 - A new Daily Challenge every day, the same board for everyone, with its own win streak to protect.
 - Endless free play with a fresh randomised board every game.
-- Hints when you are stuck, and unlimited undo so you can explore.
+- Free hints when you are stuck, and undo (a short ad, or free once you remove ads) so you can explore.
 - Smooth animated jumps, gentle sound, and haptic feedback.
 - Stats that track your games, win rate, best result, and streaks.
 - Play fully offline. Works on phones and tablets.

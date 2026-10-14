@@ -28,8 +28,8 @@ object AdIds {
         get() = if (USE_TEST) TEST_INTERSTITIAL else REAL_INTERSTITIAL
 
     /**
-     * Rewarded (watch-for-hint) unit, or null when no real unit is configured yet -
-     * in that case the app simply gives hints for free instead of showing an ad.
+     * Rewarded (watch-to-undo) unit, or null when no real unit is configured yet -
+     * in that case the app simply allows undo for free instead of showing an ad.
      */
     val rewarded: String?
         get() = when {

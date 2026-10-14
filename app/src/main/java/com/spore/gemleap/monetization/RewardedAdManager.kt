@@ -12,9 +12,9 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 
 /**
- * Loads and shows a rewarded ad for the "watch for a hint" flow, keeping one
+ * Loads and shows a rewarded ad for the "watch to undo" flow, keeping one
  * preloaded. If no rewarded unit is configured ([AdIds.rewarded] is null) or none
- * is ready, [showThenGrant] just grants the reward for free so the hint never blocks.
+ * is ready, [showThenGrant] just grants the reward for free so the undo never blocks.
  */
 class RewardedAdManager(private val activity: Activity) {
     private var ad: RewardedAd? = null
@@ -56,7 +56,7 @@ class RewardedAdManager(private val activity: Activity) {
     /**
      * Shows the rewarded ad and calls [onGranted] once the reward is earned. If no
      * ad is ready (or rewarded ads are unconfigured), grants immediately so the
-     * player still gets their hint.
+     * player still gets their undo.
      */
     fun showThenGrant(onGranted: () -> Unit) {
         val ready = ad
@@ -75,7 +75,7 @@ class RewardedAdManager(private val activity: Activity) {
                 Log.w(TAG, "Rewarded failed to show: ${error.message}")
                 ad = null
                 preload()
-                onGranted() // fall back to a free hint on show failure
+                onGranted() // fall back to a free undo on show failure
             }
         }
         ready.show(activity) { onGranted() }

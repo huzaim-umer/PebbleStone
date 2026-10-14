@@ -94,7 +94,7 @@ fun GameScreen(
     onRemoveAds: () -> Unit = {},
     onRestorePurchases: () -> Unit = {},
     onNewGameStarted: () -> Unit = {},
-    onWatchHintAd: (onGranted: () -> Unit) -> Unit = { it() },
+    onWatchUndoAd: (onGranted: () -> Unit) -> Unit = { it() },
     leaderboardAvailable: Boolean = false,
     leaderboardSignedIn: Boolean = false,
     leaderboardRank: PlayerRank? = null,
@@ -121,7 +121,7 @@ fun GameScreen(
 
     var showStats by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
-    var showHintPrompt by remember { mutableStateOf(false) }
+    var showUndoPrompt by remember { mutableStateOf(false) }
     // New players see the rules once, automatically; afterwards it's one tap away.
     var showHowTo by remember { mutableStateOf(!repo.hasSeenHowTo()) }
     var soundOn by remember { mutableStateOf(repo.loadSoundOn()) }
@@ -314,11 +314,11 @@ fun GameScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                ActionTile(icons.hint, "Hint", theme, enabled = !state.isGameOver) {
-                    // Paying users get free hints; others watch a rewarded ad.
-                    if (adsRemoved) controller.showHint() else showHintPrompt = true
+                ActionTile(icons.hint, "Hint", theme, enabled = !state.isGameOver, onClick = controller::showHint)
+                ActionTile(icons.undo, "Undo", theme, enabled = controller.canUndo) {
+                    // Paying users undo for free; others watch a rewarded ad.
+                    if (adsRemoved) controller.undo() else showUndoPrompt = true
                 }
-                ActionTile(icons.undo, "Undo", theme, enabled = controller.canUndo, onClick = controller::undo)
                 ActionTile(icons.newGame, if (daily) "Retry" else "New", theme, highlighted = true) {
                     controller.restart()
                     onNewGameStarted()
@@ -359,15 +359,15 @@ fun GameScreen(
         )
     }
 
-    if (showHintPrompt) {
-        HintDialog(
+    if (showUndoPrompt) {
+        UndoDialog(
             theme = theme,
             icons = icons,
             onWatch = {
-                showHintPrompt = false
-                onWatchHintAd { controller.showHint() }
+                showUndoPrompt = false
+                onWatchUndoAd { controller.undo() }
             },
-            onDismiss = { showHintPrompt = false },
+            onDismiss = { showUndoPrompt = false },
         )
     }
 
@@ -686,12 +686,12 @@ private fun DialogLink(text: String, color: Color, modifier: Modifier = Modifier
     )
 }
 
-/** "A little nudge": offer a rewarded ad in exchange for one legal move. */
+/** "Rewind a move": offer a rewarded ad in exchange for taking back the last jump. */
 @Composable
-private fun HintDialog(theme: GameTheme, icons: GemIcons, onWatch: () -> Unit, onDismiss: () -> Unit) {
+private fun UndoDialog(theme: GameTheme, icons: GemIcons, onWatch: () -> Unit, onDismiss: () -> Unit) {
     GemDialog(theme, onDismiss) {
         Text(
-            "A little nudge",
+            "Rewind a move",
             color = theme.textPrimary,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
@@ -715,11 +715,11 @@ private fun HintDialog(theme: GameTheme, icons: GemIcons, onWatch: () -> Unit, o
                     ),
                 )
             }
-            Icon(icons.hint, contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(48.dp))
+            Icon(icons.undo, contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(48.dp))
         }
         Spacer(Modifier.height(16.dp))
         Text(
-            "Watch a short ad to reveal\none legal move.",
+            "Watch a short ad to take\nback your last move.",
             color = theme.secondaryText,
             fontSize = 17.sp,
             lineHeight = 25.sp,
@@ -727,9 +727,9 @@ private fun HintDialog(theme: GameTheme, icons: GemIcons, onWatch: () -> Unit, o
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(26.dp))
-        CtaButton("Watch ad for hint", theme, onWatch)
+        CtaButton("Watch ad to undo", theme, onWatch)
         Spacer(Modifier.height(12.dp))
-        DialogLink("Keep thinking", theme.linkSoft, Modifier.align(Alignment.CenterHorizontally), bold = false, onClick = onDismiss)
+        DialogLink("Keep playing", theme.linkSoft, Modifier.align(Alignment.CenterHorizontally), bold = false, onClick = onDismiss)
     }
 }
 

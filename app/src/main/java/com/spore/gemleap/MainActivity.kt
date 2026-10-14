@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
                     onRemoveAds = { billing.purchaseRemoveAds(this@MainActivity) },
                     onRestorePurchases = { billing.queryPurchases() },
                     onNewGameStarted = { interstitial.onGameStarted(billing.adsRemoved) },
-                    onWatchHintAd = { grant -> rewarded.showThenGrant(grant) },
+                    onWatchUndoAd = { grant -> rewarded.showThenGrant(grant) },
                     leaderboardAvailable = leaderboard.available,
                     leaderboardSignedIn = leaderboard.signedIn,
                     leaderboardRank = leaderboard.rank,

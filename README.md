@@ -63,8 +63,9 @@ app/src/main/java/com/spore/gemleap/
   each day is fair. Toggle **Free / Daily** at the top.
 - **Stats & streaks** — games played/won, win rate, best result, current/best
   win streak, plus daily streak — persisted across launches, shown in a dialog.
-- **Hint** — highlights one legal move with a pulsing ring (the natural hook for
-  a future rewarded ad).
+- **Hint** — highlights one legal move with a pulsing ring (always free).
+- **Undo** — takes back the last jump. Players who haven't removed ads watch a
+  rewarded ad first (`RewardedAdManager`); if none is ready the undo is granted free.
 - **Animated jumps** — the moving stone slides into place while the jumped stone
   fades and shrinks away.
 - **Sound & haptics** — a wooden "tock" + capture pop per move, win/lose cues,
