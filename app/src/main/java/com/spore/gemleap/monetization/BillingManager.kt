@@ -15,6 +15,7 @@ import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ConsumeParams
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -71,6 +72,7 @@ class BillingManager(
         .build()
 
     fun connect() = whenReady {
+        Log.i(TAG, "connected; cached adsRemoved=$adsRemoved")
         queryProduct()
         queryPurchases(userInitiated = false)
     }
@@ -154,6 +156,10 @@ class BillingManager(
                     if (userInitiated) reportFailure("Restore", result)
                     return@post
                 }
+                Log.i(TAG, "queryPurchases: ${purchases.size} purchase(s)")
+                purchases.forEach {
+                    Log.i(TAG, "  ${it.products} state=${it.purchaseState} order=${it.orderId} ack=${it.isAcknowledged}")
+                }
                 val owned = purchases.any {
                     it.products.contains(AdIds.PRODUCT_REMOVE_ADS) &&
                         it.purchaseState == Purchase.PurchaseState.PURCHASED
@@ -162,6 +168,28 @@ class BillingManager(
                 purchases.forEach { handlePurchase(it, fromUser = false) }
                 if (userInitiated) toast(if (owned) "Remove Ads restored." else "No Remove Ads purchase found on this account.")
             }
+        }
+    }
+
+    /**
+     * Debug builds only: consumes any Remove Ads purchase so Play stops returning it,
+     * letting a test account see ads again. Never called from release builds.
+     */
+    fun debugResetRemoveAds() = whenReady {
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.INAPP)
+            .build()
+        client.queryPurchasesAsync(params) { _, purchases ->
+            val targets = purchases.filter { it.products.contains(AdIds.PRODUCT_REMOVE_ADS) }
+            Log.i(TAG, "debugReset: consuming ${targets.size} purchase(s)")
+            targets.forEach { purchase ->
+                val consume = ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()
+                client.consumeAsync(consume) { result, _ ->
+                    Log.i(TAG, "debugReset: consume ${purchase.orderId} -> ${result.responseCode} ${result.debugMessage}")
+                    main.post { if (result.responseCode == BillingResponseCode.OK) setEntitlement(false) }
+                }
+            }
+            if (targets.isEmpty()) main.post { setEntitlement(false) }
         }
     }
 
@@ -233,6 +261,7 @@ class BillingManager(
     }
 
     private fun setEntitlement(owned: Boolean) {
+        Log.i(TAG, "setEntitlement($owned), was $adsRemoved")
         if (adsRemoved != owned) {
             adsRemoved = owned
             repo.saveAdsRemoved(owned)

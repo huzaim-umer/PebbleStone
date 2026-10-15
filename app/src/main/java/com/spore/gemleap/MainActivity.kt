@@ -1,6 +1,7 @@
 package com.spore.gemleap
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -40,6 +41,10 @@ class MainActivity : ComponentActivity() {
 
         val repo = StatsRepository(this)
         billing = BillingManager(this, repo).also { it.connect() }
+        // Debug builds only: `adb shell am start ... --ez reset_purchase true` clears a test
+        // Remove Ads purchase so ads can be tested again on that account.
+        val debuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if (debuggable && intent.getBooleanExtra("reset_purchase", false)) billing.debugResetRemoveAds()
         interstitial = InterstitialAdManager(this, repo)
         rewarded = RewardedAdManager(this)
         consent = ConsentManager(this)
